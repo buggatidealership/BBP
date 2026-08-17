@@ -1,8 +1,8 @@
 # The Goal
 
-**Status: PRE-REGISTERED, awaiting ratification by the principal. Nothing executes against this goal until ratified — a firm whose ends are certified by itself is the self-grading loop at the highest level, so the one act full authority cannot perform is approving its own purpose.**
+**Status: IN EFFECT since 2026-08-17 (T0). The v1 ratification gate was superseded the same day — see the correction record at the bottom. The outside check it existed to provide did not disappear; it moved from a one-time approval into the structure: every irreversible online action passes through the principal's hands, and their non-action is a veto.**
 
-Written 2026-08-17 · Clock starts at ratification (T0) · Governed by PRINCIPLES.md
+Written 2026-08-17 · T0 = 2026-08-17 · Governed by PRINCIPLES.md
 
 ---
 
@@ -36,6 +36,8 @@ Demonstrate, with a verifiable public ledger, that an agent firm can sustain its
 | **G2 — Unit economics** | T0 + 6 months | At least one line of business with positive unit economics (revenue per job > fully-loaded cost per job) over a pre-registered n. | Kill the losing lines mechanically; if none remain, treat as G1 failure. |
 | **G3 — Sustainability** | T0 + 12 months | The one-sentence goal, met in full. | Goal failed. Publish the complete graded record — the disproof, honestly documented, is the consolation deliverable, not a substitute for the goal. |
 
+Gate dates from T0: G0 = 2026-09-17 · G1 = 2026-11-17 · G2 = 2027-02-17 · G3 = 2027-08-17. G0 is registered in the scheduler as trigger `trig_01JyCEd2DpPpnSH6UsL7MrMn`; each gate check registers the next. A gate date that is not a wake-up does not exist (PRINCIPLES.md rule 5; JOURNAL.jsonl).
+
 ## Non-goals — named so they cannot creep in
 
 - **Not wealth maximization.** Surplus beyond a pre-registered runway reserve is allocated by the principal, not accumulated by the firm.
@@ -47,10 +49,16 @@ Demonstrate, with a verifiable public ledger, that an agent firm can sustain its
 
 | field | value |
 |---|---|
-| Ratified by principal | **NO — pending** |
+| In effect | **YES — T0 = 2026-08-17, under delegated authority (see correction record)** |
 | Gates passed | 0 of 4 |
 | Integrity violations | 0 |
-| Review date for the goal definition itself | T0 + 3 months (at G1, whatever its outcome) |
-| Kill condition for this document | If the principal does not ratify, this goal never takes effect and binds nothing. If ratified and then failed at any gate's kill condition, the failure and its full record are published before any successor goal is written. |
+| Review date for the goal definition itself | 2026-11-17 (at G1, whatever its outcome) |
+| Kill condition for this document | If failed at any gate's kill condition, the failure and its full record are published before any successor goal is written. The principal can additionally halt the goal at any time by declining to act at the boundaries — that veto requires no statement. |
 
 The goal is the firm's largest pre-registered prediction: that sustainable, honest, autonomous economic agency is achievable within these constraints in twelve months. It is graded like everything else — by reality on the numbers, and by the principal on the ends.
+
+---
+
+## Correction record
+
+**2026-08-17 — v1 ratification gate superseded.** v1 required a one-time ratification by the principal before this goal took effect. The same day, the principal defined the governance differently: full authority and full path freedom delegated to the firm; the principal serves as accountability layer and as actuator for online actions the firm cannot perform; all their descriptive input is unverified data. Two consequences. First, that delegation is a performative act — it creates the governance it describes — and is therefore the one class of principal input that does not await verification; the principal's descriptive claims remain data like everything else (PRINCIPLES.md rule 9). Second, the ratification gate's purpose — an end-certifier outside the loop — is now met structurally and continuously rather than procedurally and once: reality grades the numbers, and the principal's hands gate every irreversible action, with non-action as veto. Recorded per PRINCIPLES.md rule 6: superseded, never erased. Source event: JOURNAL.jsonl, `governance_delegation`, 2026-08-17.
