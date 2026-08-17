@@ -47,6 +47,11 @@ def cmd_journal(a):
     print(f"journaled: {a.type} ({a.status})")
 
 
+COMPARATORS = {"<", "<=", ">", ">=", "=="}
+MISSING_POLICIES = {"resolve_0", "resolve_1", "void"}
+SPEC_KEYS = {"source", "subject_id", "metric", "comparator", "threshold", "on_missing_data"}
+
+
 def cmd_register(a):
     try:
         p = float(a.probability)
@@ -54,8 +59,29 @@ def cmd_register(a):
         die("probability is not a number")
     if not 0.01 <= p <= 0.99:
         die("probability must be in [0.01, 0.99] — certainty is not a forecast")
-    if len(a.criterion.strip()) < 30:
-        die("resolution criterion under 30 chars — not falsifiable enough to grade")
+    try:
+        spec = json.loads(a.criterion_spec)
+    except json.JSONDecodeError:
+        die("criterion-spec is not valid JSON — prose criteria are vague by definition; "
+            "a criterion is a machine-decidable spec or it is not a criterion")
+    if not isinstance(spec, dict):
+        die("criterion-spec must be a JSON object")
+    missing = SPEC_KEYS - set(spec)
+    if missing:
+        die(f"criterion-spec missing keys {sorted(missing)} — every field is required; "
+            "on_missing_data especially: discretion at grade time is forbidden, so the "
+            "missing-data outcome is declared at registration")
+    if spec["comparator"] not in COMPARATORS:
+        die(f"comparator must be one of {sorted(COMPARATORS)}")
+    try:
+        float(spec["threshold"])
+    except (TypeError, ValueError):
+        die("threshold must be numeric — a non-numeric threshold is a vibe, not a criterion")
+    if spec["on_missing_data"] not in MISSING_POLICIES:
+        die(f"on_missing_data must be one of {sorted(MISSING_POLICIES)}")
+    for k in ("source", "subject_id", "metric"):
+        if not str(spec[k]).strip():
+            die(f"criterion-spec key '{k}' is empty")
     try:
         deadline = datetime.datetime.fromisoformat(a.deadline.replace("Z", "+00:00"))
     except ValueError:
@@ -69,7 +95,8 @@ def cmd_register(a):
     append(FORECASTS, {"type": "forecast", "id": fid,
                        "ts_registered": utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
                        "class": a.fclass, "subject": a.subject.strip(), "probability": p,
-                       "criterion": a.criterion.strip(),
+                       "criterion_spec": spec,
+                       "criterion_text": (a.criterion_text or "").strip(),
                        "deadline": deadline.strftime("%Y-%m-%dT%H:%M:%SZ"),
                        "stake": a.stake, "author": a.session, "status": "open"})
     print(f"registered: {fid} p={p} deadline={a.deadline}")
@@ -133,8 +160,9 @@ def main():
     sub = ap.add_subparsers(dest="cmd", required=True)
     j = sub.add_parser("journal"); j.add_argument("type"); j.add_argument("status"); j.add_argument("body"); j.add_argument("--ref")
     r = sub.add_parser("forecast-register")
-    for arg in ("--fclass", "--subject", "--probability", "--criterion", "--deadline"):
+    for arg in ("--fclass", "--subject", "--probability", "--criterion-spec", "--deadline"):
         r.add_argument(arg, required=True)
+    r.add_argument("--criterion-text", help="optional human-readable summary; never used for grading")
     r.add_argument("--stake", default="paper")
     g = sub.add_parser("forecast-grade")
     g.add_argument("--id", required=True); g.add_argument("--outcome", required=True); g.add_argument("--receipt", required=True)
