@@ -9,8 +9,14 @@
   "experiment_budget_usd_total": 2000,
   "budget_allocation_preregistered": {
     "wallet_capital_ceiling": 500,
-    "operating_ceiling_if_billed": 1200,
-    "unallocated_reserve": 300,
-    "note": "Set 2026-08-17 under the principal's ~$2k envelope. Wallet ceiling is the MAXIMUM ever fundable at H3, not a commitment; actual H3 request will be the smallest viable stake licensed by H1's numbers. Reallocation requires a journaled amendment."
+    "overage_credits_ceiling": 500,
+    "unallocated_reserve": 1000,
+    "note": "v2, amended 2026-08-17 after principal clarified: compute is quota-covered under Max; the ~$2k envelope pays only for (a) overage credits and (b) wallet funding. Wallet ceiling unchanged - available money is not a reason to raise a stake the ledger has not licensed. v1 (wallet 500 / operating-if-billed 1200 / reserve 300) superseded."
+  },
+  "compute_quota": {
+    "arrangement": "Principal is on Claude Max. A separate investment harness (7 agents) consumes ~10% of the weekly quota per day. BBP's allowance: ~5% of weekly quota per day (~35%/week), bringing combined use to ~100% by week's end.",
+    "hard_line": "BBP must never crowd the investment harness: 5%/day is a ceiling, not a target.",
+    "meter": "Quota consumption is not measurable from inside the harness; the principal is the only meter. Standing request: flag if BBP-attributable usage approaches the line. Absence of a flag is weak evidence, not proof, of compliance.",
+    "policy": "Stay inside quota; overage converts to real dollars from the envelope and needs a journaled justification before it is knowingly incurred."
   }
 }
