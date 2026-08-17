@@ -55,3 +55,10 @@ the outcome and the survey extends one week — visibly, never silently.
   the sampler's dead-man's check (missing cohorts = journaled incident).
 - GeckoTerminal's free tier is an unverified dependency: rate limits or schema changes are
   survey findings, not surprises — the sampler fails loudly by design.
+- Diurnal bias (added 2026-08-17 after principal challenge): 8 divides 24, so every sample
+  lands at the same three clock times. This largely cancels for cross-network *ranking* (all
+  networks sampled at identical times) but not for absolute base rates — the H1 cadence on
+  the winning venue must correct for it (offset or denser sampling). Only ~12 of 21 wakes
+  are 72h-mature by decision day (~720 gradeable pools/network, SE ~1–2pp — at the
+  diminishing-returns knee); the final 3 days' samples mature during H1 week one and get
+  graded then at zero additional sampling cost.
