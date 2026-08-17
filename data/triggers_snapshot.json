@@ -1,0 +1,43 @@
+{
+  "as_of": "2026-08-17T21:45:00Z",
+  "source": "list_triggers query from interactive session",
+  "triggers": [
+    {
+      "id": "trig_01BPJ3f9pFWDhjUQXoa1FFoh",
+      "name": "H1.0 survey sampler (8h, sibling session)",
+      "cron": "9 */8 * * *",
+      "run_once_at": null,
+      "enabled": true,
+      "next_run_at": "2026-08-18T00:09:00Z",
+      "fires_into": "session_01YXBHRYGfrvjkwX3F45AR9M"
+    },
+    {
+      "id": "trig_013WCQmMWwVVq5ZKA22Qcods",
+      "name": "H1.0 survey decision wake (T0+7d)",
+      "cron": null,
+      "run_once_at": "2026-08-24T12:00:00Z",
+      "enabled": true,
+      "next_run_at": "2026-08-24T12:00:00Z",
+      "fires_into": "session_01NXxV7g3ZWdZB5EsbVpisnY"
+    },
+    {
+      "id": "trig_01Fe4C8wmE4pkaGPqGhHuLqP",
+      "name": "G0 dead-man's switch (T0+1mo+1d)",
+      "cron": null,
+      "run_once_at": "2026-09-18T12:00:00Z",
+      "enabled": true,
+      "next_run_at": "2026-09-18T12:00:00Z",
+      "fires_into": "session_01NXxV7g3ZWdZB5EsbVpisnY"
+    },
+    {
+      "id": "trig_01JyCEd2DpPpnSH6UsL7MrMn",
+      "name": "G0 gate check (T0+1mo)",
+      "cron": null,
+      "run_once_at": "2026-09-17T12:00:00Z",
+      "enabled": true,
+      "next_run_at": "2026-09-17T12:00:00Z",
+      "fires_into": "session_01NXxV7g3ZWdZB5EsbVpisnY"
+    }
+  ],
+  "note": "Filtered to BBP-scope triggers only; the account runs other non-BBP routines that do not belong in this repo's record."
+}
