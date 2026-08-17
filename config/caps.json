@@ -1,0 +1,9 @@
+{
+  "status": "ADVISORY — no money path exists yet, so no drill can prove these fire; they harden to ENFORCED when H3's account plumbing is built and drilled",
+  "total_capital_allowance_usd": 0,
+  "max_position_pct_of_allowance": 5,
+  "daily_drawdown_halt_pct": 10,
+  "speculation_max_pct_of_firm_revenue": 10,
+  "rule": "No component may hold spending credentials except the risk officer component (unbuilt). Allowance changes require a principal-executed funding action — the firm cannot raise its own allowance.",
+  "changed": "2026-08-17"
+}
