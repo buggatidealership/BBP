@@ -1,9 +1,16 @@
 {
-  "status": "ADVISORY — no money path exists yet, so no drill can prove these fire; they harden to ENFORCED when H3's account plumbing is built and drilled",
+  "status": "ADVISORY \u2014 no money path exists yet, so no drill can prove these fire; they harden to ENFORCED when H3's account plumbing is built and drilled",
   "total_capital_allowance_usd": 0,
   "max_position_pct_of_allowance": 5,
   "daily_drawdown_halt_pct": 10,
   "speculation_max_pct_of_firm_revenue": 10,
-  "rule": "No component may hold spending credentials except the risk officer component (unbuilt). Allowance changes require a principal-executed funding action — the firm cannot raise its own allowance.",
-  "changed": "2026-08-17"
+  "rule": "No component may hold spending credentials except the risk officer component (unbuilt). Allowance changes require a principal-executed funding action \u2014 the firm cannot raise its own allowance.",
+  "changed": "2026-08-17",
+  "experiment_budget_usd_total": 2000,
+  "budget_allocation_preregistered": {
+    "wallet_capital_ceiling": 500,
+    "operating_ceiling_if_billed": 1200,
+    "unallocated_reserve": 300,
+    "note": "Set 2026-08-17 under the principal's ~$2k envelope. Wallet ceiling is the MAXIMUM ever fundable at H3, not a commitment; actual H3 request will be the smallest viable stake licensed by H1's numbers. Reallocation requires a journaled amendment."
+  }
 }
