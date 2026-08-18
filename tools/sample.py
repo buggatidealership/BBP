@@ -39,7 +39,7 @@ def main():
             try:
                 d = fetch(f"https://api.geckoterminal.com/api/v2/networks/{net}/new_pools?page={page}")
                 pools.extend(d.get("data", []))
-                time.sleep(1)  # stay polite on the free tier
+                time.sleep(2.5)  # 429s observed 2026-08-18T00:11Z at 1s spacing; slower is cheaper than partial cohorts
             except RuntimeError as e:
                 failures.append(f"{net} p{page}: {e}")
         snapshot["networks"][net] = pools
