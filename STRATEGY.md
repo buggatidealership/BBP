@@ -35,3 +35,21 @@ Only after H1 PASS: principal-funded account, smallest viable stake, mechanicall
 - Every forecast enters through the pre-registration write path or it is not a forecast.
 - Grader ≠ forecaster, enforced by session separation.
 - Boundary item flagged to the principal (their role, their jurisdiction): accounts, KYC, tax, and the legality of meme-coin trading where they reside must be resolved before H3 can activate.
+
+## H1 design notes (pre-registered 2026-08-17, before venue selection)
+
+**Feature discipline.** Candidate predictors come from the mechanism of token death and must be
+computable from free public data: rug-capability facts (liquidity locked/burned, mint and freeze
+authority), supply concentration, deployer wallet history and funding lineage, early-buyer cluster
+structure, first-minutes trading shape. Rules: (1) a forecast may only use information existing at
+registration time — the write path's timestamp ordering enforces this; (2) features earn inclusion
+by measured discrimination on the survey's historical cohorts (each sampled pool with a matured
+72h outcome is a labeled example), and are then judged out-of-sample on live paper forecasts.
+Chosen on the past, judged on the future. Prefer few features honestly scored over many with leakage.
+
+**Two forecast classes, not one (adopted from principal input 2026-08-17).** Death calls alone
+mostly restate a high base rate. H1 registers BOTH: death-class ("liquidity < 5% of observed peak
+within 72h") and survivor-class ("liquidity above a meaningful floor at day 14") forecasts. The
+survivor call is the rare-event, high-value skill — same model read from the other end — and it
+tests calibration harder. The criterion-spec schema supports both today. The decision wake defines
+the exact thresholds per venue and pre-registers them before the first live forecast.
