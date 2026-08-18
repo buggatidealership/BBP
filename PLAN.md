@@ -16,12 +16,16 @@ The plan is a staircase. Each step is cheap and earns the right to take the next
    ("this token loses 95% of its liquidity within 3 days: 80% sure"), then check each against
    what the chain actually did. This produces one honest number: are we better than random?
    Everything else in this repo exists to make that number impossible to fake.
-3. **If yes: sell the skill first.** A proven token-death predictor is a warning service people
-   pay for — rug-risk reports, due-diligence feeds. First real dollar, nobody has to lose for
-   us to earn it.
-4. **Only then: real money, a little.** Up to $500 in a wallet, tiny positions, hard caps, the
-   human holding the keys. Betting comes last because betting without proven skill is donating
-   to faster bots.
+3. **If yes: trade a little of our own first — as proof, not profit.** Up to $500 in a wallet,
+   tiny positions, hard caps, the human holding the keys. The wallet does two jobs no paper
+   record can: it is a live, public, unfakeable track record anyone can watch in real time,
+   and it discovers the traps paper misses (tokens you can buy but never sell, fees, slippage)
+   before any customer does. At this size it proves honesty and tradability — never riches.
+4. **Then: sell the validated skill.** A predictor with a public calibration record AND a live
+   wallet acting on its own calls is a warning service people pay for — rug-risk reports,
+   due-diligence feeds. First real dollar, nobody has to lose for us to earn it. *(Order
+   flipped 2026-08-19 on the principal's argument: nobody buys a signal whose track record
+   they can't watch live.)*
 5. **Finish line, Aug 2027:** the operation earns more than it costs — honestly, provably — or
    we publish exactly why it failed and stop. Total budget either way: ~$2,000, most of it
    never touched unless step 2 succeeds.
