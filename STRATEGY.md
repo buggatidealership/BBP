@@ -23,11 +23,13 @@ A model-driven analyst observing public chain data can predict defined on-chain 
 - **Fail condition:** the same n without that margin → H1 FAILED, published, and H3 permanently blocked until a new H1-class hypothesis passes.
 - **Capital at risk: zero.** Cost is tokens and time only.
 
-### H2 — Sell the signal before trading it (positive-sum, G1-aligned)
-If H1 passes, the same output is merchandise: rug-risk feeds, token due-diligence reports, wallet intelligence. Counterparties gain; nobody must lose. First verified dollar here counts toward G1.
+### H2 — Validate in the market before selling (reordered 2026-08-19; principal argument adopted)
+Only after H1 PASS: principal-funded wallet, smallest viable stake within the $500 ceiling, mechanically enforced position caps and drawdown circuit breaker. **Funding remains declined until H1 resolves**, and the request will cite H1's numbers. Purpose is VALIDATION, not revenue: (a) a wallet address is a self-publishing, real-time, unfakeable track record on the same public chain we analyze — for the crypto-native buyer, stronger proof than any self-hosted ledger ("watch this address" is the storefront); (b) live execution surfaces what paper cannot — slippage, fees, honeypot tokens (buyable, never sellable), liquidity depth. A paper-calibrated but untradeable signal must be discovered by us, not by customers. Honest framing bound to this phase: at these stakes the wallet proves tradability and integrity, NOT scalable profitability — fees dominate small positions and P&L significance needs large n. Validation-trading spend is a bounded cost (never exceeding the wallet ceiling), consistent with GOAL.md's "information-purchase stakes."
 
-### H3 — Capital, last and gated
-Only after H1 PASS: principal-funded account, smallest viable stake, mechanically enforced position caps and drawdown circuit breaker, speculation capped at 10% of firm revenue per GOAL.md. **Funding is explicitly declined until then** — pre-registered thresholds exist so capital arrives when the ledger licenses it, not when conviction feels strong. The funding request, when made, will cite H1's resolved numbers.
+### H3 — Sell the validated signal
+The product ships only once both proofs exist: the calibration ledger (the probabilities mean something) plus the live on-chain record (the picks are tradable, and we act on our own signal). Signal sales are the positive-sum revenue line; the steady-state speculation cap (10% of firm revenue) applies from the moment sales revenue exists and is graded at G3.
+
+*Correction record: v1 ordered sell-then-trade. Reordered on the principal's argument — "why would one buy when you can't see the track record in real time" — plus the execution-reality argument (honeypots/slippage must be discovered before customers, not by them). Cost accepted openly: revenue arrives later, tightening G1 (2026-11-17); if the timeline compresses, the first verified dollar may come from another positive-sum deliverable while the wallet record accumulates. Superseded, never erased.*
 
 ## Standing constraints on this strategy
 
