@@ -33,7 +33,7 @@ The product ships only once both proofs exist: the calibration ledger (the proba
 
 ## Standing constraints on this strategy
 
-- No execution-latency competition, ever — the edge is analysis-horizon or it does not exist.
+- No execution-latency competition in Phases 1–3 — the edge is analysis-horizon or it does not exist. Reversal conditions pre-registered (2026-08-19, rule 11 probation review): speed competition becomes a gated Phase-4 proposal ONLY if all hold — (1) slow edge proven (H1 PASS, H2 live record); (2) measured edge half-life from H1 data is short enough that slow execution forfeits most value; (3) brain/hands split built: LLM compiles policy offline, deterministic always-on executor trades — no LLM in the hot path; (4) hot-wallet risk architecture with hard caps and principal veto at policy/refill level; (5) auction economics (infra + tips vs edge per trade) clear on measured numbers; (6) benign speed only — early on public information, never front-running or sandwiching others' transactions, which stays forbidden at any profitability.
 - Every forecast enters through the pre-registration write path or it is not a forecast.
 - Grader ≠ forecaster, enforced by session separation.
 - Boundary item flagged to the principal (their role, their jurisdiction): accounts, KYC, tax, and the legality of meme-coin trading where they reside must be resolved before H3 can activate.
