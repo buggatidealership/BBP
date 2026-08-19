@@ -5,7 +5,7 @@
   "daily_drawdown_halt_pct": 10,
   "speculation_max_pct_of_firm_revenue": 10,
   "rule": "No component may hold spending credentials except the risk officer component (unbuilt). Allowance changes require a principal-executed funding action \u2014 the firm cannot raise its own allowance.",
-  "changed": "2026-08-17",
+  "changed": "2026-08-19",
   "experiment_budget_usd_total": 2000,
   "budget_allocation_preregistered": {
     "wallet_capital_ceiling": 500,
@@ -18,5 +18,21 @@
     "hard_line": "BBP must never crowd the investment harness: 5%/day is a ceiling, not a target.",
     "meter": "Quota consumption is not measurable from inside the harness; the principal is the only meter. Standing request: flag if BBP-attributable usage approaches the line. Absence of a flag is weak evidence, not proof, of compliance.",
     "policy": "Stay inside quota; overage converts to real dollars from the envelope and needs a journaled justification before it is knowingly incurred."
+  },
+  "model_policy": {
+    "principle": "Model fitted to task, with a safety margin ABOVE the minimum viable tier. Never a model weak enough to hallucinate or lose task alignment - safe over cheap, per principal directive 2026-08-19. Inherited defaults are unexamined decisions: every session/routine names its model deliberately.",
+    "tiers": {
+      "reasoning_and_judgment": {
+        "model": "claude-fable-5",
+        "applies_to": "orchestrator, decision wakes, gate checks, forecasting, grading, incident response - the reasoning IS the product here"
+      },
+      "structured_work": {
+        "model": "claude-sonnet-5",
+        "applies_to": "sampler shifts (mechanical git+script cycles), weekly ops brief (read-and-summarize) - frontier-class tier below max, comfortably above the competence floor"
+      },
+      "rejected_floor": "claude-haiku tier rejected for standing shifts per safe-not-sorry - savings do not license alignment risk"
+    },
+    "escalation_rule": "Any shift showing task confusion is reverted to the stronger model immediately and the event journaled as a model-fit incident. Model downgrades require a passed drill before the old session is retired.",
+    "changed": "2026-08-19"
   }
 }
