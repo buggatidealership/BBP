@@ -1,0 +1,29 @@
+name: BBP self-check
+
+# Independent verification layer. This runs on GitHub's infrastructure, on GitHub's
+# scheduler — neither of which is the thing being checked. A red X here is a fact the
+# principal can read without trusting any session's report, and the 6-hourly schedule
+# means a silent sampler or a stale board surfaces even if every Claude wake is dead.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # I2 needs full history to prove the journal is append-only
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run MUST invariants
+        run: python3 tools/selfcheck.py
+      - name: Run non-computable-claim linter
+        if: always()
+        run: python3 tools/lint.py
