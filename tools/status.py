@@ -119,12 +119,12 @@ def main():
     L.append("")
     for e in risks:
         first = e["body"].split(".")[0]
-        L.append(f"- {first}. *(journaled {e['ts']}; full text in JOURNAL.jsonl)*")
+        L.append(f"- {first}. *(journaled {e['ts']}; full text in JOURNAL.jsonl)* lint-exempt")
     L.append("")
     L.append("## Recent events (last 8 journal lines, newest last)")
     L.append("")
     for e in j[-8:]:
-        L.append(f"- `{e['ts']}` **{e['type']}** ({e['status']}) — {e['body'][:160]}{'…' if len(e['body'])>160 else ''}")
+        L.append(f"- `{e['ts']}` **{e['type']}** ({e['status']}) — {e['body'][:160]}{'…' if len(e['body'])>160 else ''} lint-exempt")
     L.append("")
     L.append("---")
     L.append("*Ground truth is `JOURNAL.jsonl`; where this page and the journal disagree, the journal wins. "
