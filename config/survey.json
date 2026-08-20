@@ -1,0 +1,26 @@
+{
+  "_": "MACHINE STATE. OBSERVATION.md is generated from this file and is not authoritative. tools/sample.py reads survey_end_utc from here.",
+  "phase": "H1.0",
+  "question": "Which venue offers the cheapest-to-measure base rates per unit of effort? No a-priori answer exists, so it is bought with a one-week survey scored on weights fixed before the data.",
+  "candidates": ["solana", "base", "eth", "bsc"],
+  "survey_start_utc": "2026-08-17T10:33:00Z",
+  "survey_end_utc": "2026-09-07T00:00:00Z",
+  "sample_cadence_hours": 8,
+  "pages_per_network": 3,
+  "pools_per_page": 20,
+  "decision_utc": "2026-08-24T12:00:00Z",
+  "census_thresholds": {"gap_incident_below": 14, "stop_survey_below": 8},
+  "criteria_weights": {"event_volume": 0.30, "base_rate_measurability": 0.30, "resolution_speed": 0.20, "data_reliability": 0.20},
+  "outcome_definitions": {
+    "death_class": "reserve_in_usd < 0.05 x observed peak within 72h of first observation, or pool 404s on individual re-query",
+    "survivor_class": "at day 14: reserve_in_usd >= 0.50 x observed peak AND >= venue median launch reserve_in_usd across all committed cohorts",
+    "unmeasurable": "fetch error; never folded into either outcome"
+  },
+  "excluded_by_construction": ["execution-latency strategies", "any venue requiring paid data before H1 passes"],
+  "known_limits": [
+    "3 pages x 20 pools per snapshot is a thin sample of a firehose; adequate for base rates and ranking, not for coverage.",
+    "8 divides 24, so every sample lands at the same three clock times: this cancels for cross-network ranking but biases absolute base rates; H1 cadence must correct it.",
+    "GeckoTerminal free tier is an unverified dependency; 429s were observed 2026-08-18 and the sampler now paces at 2.5s.",
+    "Peak is the max observed across snapshots, so it is an underestimate: the death test under-counts deaths rather than inflating them."
+  ]
+}

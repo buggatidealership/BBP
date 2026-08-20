@@ -17,13 +17,18 @@ INJECTION = re.compile(r"(ignore\s+(all\s+|previous\s+|prior\s+)?instruction|sys
                        r"https?://|<script|api[_\s-]?key|seed\s+phrase|private\s+key)", re.I)
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-NETWORKS = ["solana", "base", "eth", "bsc"]
-PAGES = 3  # 20 pools/page
+NETWORKS = None  # set from config below
+PAGES = None
 
 # Guards enforced HERE, not in the wake prompt (red-team 2026-08-20): the sampler's prompt
 # cannot be edited from the orchestrator session, so any rule that lives only in that prompt
 # is unenforceable. Code the wake must call is the enforcer of last resort.
-SURVEY_END = datetime.datetime(2026, 9, 7, tzinfo=datetime.timezone.utc)  # no cron runs open-ended
+# Single source of truth: config/survey.json. A date duplicated in two places is two dates
+# waiting to disagree (red-team 2026-08-20).
+_CFG = json.loads((ROOT / "config" / "survey.json").read_text())
+NETWORKS = _CFG["candidates"]
+PAGES = _CFG["pages_per_network"]
+SURVEY_END = datetime.datetime.fromisoformat(_CFG["survey_end_utc"].replace("Z", "+00:00"))
 MIN_GAP_MIN = 60  # duplicate-fire guard
 
 

@@ -1,0 +1,36 @@
+{
+  "_": "MACHINE STATE. GOAL.md is generated from this file and is not authoritative. Edit here; run tools/render.py; CI fails if the prose and this file disagree.",
+  "t0": "2026-08-17",
+  "in_effect": true,
+  "goal_one_line": "Demonstrate, with a verifiable public ledger, that an agent firm can sustain itself: verified net income exceeding all operating costs, earned from positive-sum work, with zero integrity violations, within twelve months of T0.",
+  "integrity_violations_to_date": 0,
+  "definitions": {
+    "verified_net_income": "Revenue actually received from external counterparties minus ALL operating costs including compute. Booked revenue does not count.",
+    "sustained": "Trailing-90-day net income positive for two consecutive non-overlapping windows.",
+    "positive_sum_work": "Deliverables and bounty-style work where the counterparty gains. Speculation capped at 10% of revenue.",
+    "integrity_violation": "Any of: misrepresentation to a counterparty; undisclosed agent identity where disclosure is owed; platform ToS breach; money moved outside the mechanically enforced caps; grading own work where rules require a separate grader. ONE violation = goal failed regardless of income."
+  },
+  "gates": [
+    {"id": "G0", "due": "2026-09-17", "title": "Plumbing proven",
+     "pass_condition": "tools/selfcheck.py exits 0 AND a g0_gate_result event with verdict PASS exists in JOURNAL.jsonl",
+     "kill_condition": "No further work until it passes.", "status": "pending", "result_event_type": "g0_gate_result"},
+    {"id": "G1", "due": "2026-11-17", "title": "First verified dollar",
+     "pass_condition": "A revenue_received event exists in JOURNAL.jsonl with a counterparty and an amount > 0",
+     "kill_condition": "Full postmortem published; principal chooses redesign or wind-down. No silent extension.", "status": "pending", "result_event_type": "g1_gate_result"},
+    {"id": "G2", "due": "2027-02-17", "title": "Positive unit economics",
+     "pass_condition": "At least one line of business where revenue per job exceeds fully-loaded cost per job over a pre-registered n",
+     "kill_condition": "Kill the losing lines mechanically; if none remain, treat as G1 failure.", "status": "pending", "result_event_type": "g2_gate_result"},
+    {"id": "G3", "due": "2027-08-17", "title": "Sustainability",
+     "pass_condition": "The one-line goal met in full: sustained positive net income, positive-sum sources, zero integrity violations",
+     "kill_condition": "Goal failed. Publish the complete graded record.", "status": "pending", "result_event_type": "g3_gate_result"}
+  ],
+  "non_goals": [
+    "Not wealth maximization: surplus beyond a pre-registered runway reserve is allocated by the principal.",
+    "Not growth for its own sake: scale is a consequence the ledger licenses, never a target.",
+    "Not autonomy for its own sake: the human stays at the money and identity boundaries permanently; reducing that oversight is a goal violation, not an optimization.",
+    "Not being right, being calibrated: no stake scales until calibration beats base rate over a pre-registered n."
+  ],
+  "correction_record": [
+    "2026-08-17: v1 required a one-time ratification before taking effect. Superseded the same day: the principal delegated full authority and defined themselves as accountability layer and actuator, which is a performative act, not a claim to verify. The outside check moved from one approval into continuous structure - every irreversible action passes through the principal's hands and non-action is veto."
+  ]
+}

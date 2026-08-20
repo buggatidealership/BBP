@@ -113,6 +113,22 @@ board = st.read_text() if st.exists() else ""
 missing = [k for k in openp if k not in board]
 check("I11 pending items surfaced", not missing, f"{missing}" if missing else f"{len(openp)} open, all on board")
 
+# --- I12 compiled docs match machine state ------------------------------------------
+r = subprocess.run([sys.executable, str(ROOT / "tools" / "render.py"), "--check"], capture_output=True, text=True)
+check("I12 docs match config", r.returncode == 0, r.stdout.strip().splitlines()[-1] if r.returncode else "")
+
+# --- I13 survey weights sum to 1 -----------------------------------------------------
+sv = json.loads((ROOT / "config" / "survey.json").read_text())
+wsum = sum(sv["criteria_weights"].values())
+check("I13 weights sum to 1", abs(wsum - 1.0) < 1e-9, f"weights sum to {wsum}")
+
+# --- I14 tools read config, not duplicated constants ---------------------------------
+smp = (ROOT / "tools" / "sample.py").read_text()
+_ok14 = "survey.json" in smp and "datetime.datetime(2026" not in smp
+check("I14 no duplicated survey constants", _ok14,
+      "sample.py hardcodes a date instead of reading config/survey.json" if not _ok14
+      else "sample.py reads config/survey.json")
+
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
 for p in PASSES: print(f"  PASS  {p}")
