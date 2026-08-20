@@ -7,8 +7,15 @@ wake runs this tool, it does not define these):
 - DEAD at grading time = current reserve_in_usd < 5% of peak, OR the pool is no
   longer returned by the API (delisted/unindexed counts as dead — a token whose
   pool vanished did not survive).
-- UNMEASURABLE = the batch fetch for that pool errored/timed out. Unmeasurable is
-  a data-reliability fact, never silently folded into either outcome.
+- UNMEASURABLE = the fetch errored/timed out. Unmeasurable is a data-reliability fact,
+  never silently folded into either outcome.
+- ABSENT FROM A BATCH RESPONSE IS NOT PROOF OF DEATH (red-team, 2026-08-20). Any pool the
+  batch omits is re-queried individually: HTTP 404 confirms delisting (dead); any other
+  error marks it unmeasurable. Address matching is case-insensitive — EVM checksum casing
+  differing between our snapshot and the API would otherwise manufacture false deaths.
+- KNOWN BIAS: peak is the max WE observed across 8-hourly snapshots, so a spike between
+  snapshots is invisible and peak is an underestimate; that makes the 5% threshold easier
+  to stay above, i.e. this tool UNDER-counts deaths rather than inflating them.
 - Only pools first seen >= --min-age-hours ago are graded (default 72).
 
 Usage: python3 tools/outcomes.py [--min-age-hours 72] [--max-pools-per-network 0=all]
@@ -33,6 +40,20 @@ def fetch(url, tries=3):
             last = e
             time.sleep(3 * (i + 1))
     raise RuntimeError(f"{url}: {last}")
+
+
+def confirm_absent(net, addr):
+    """A pool missing from a batch response is re-queried alone. 404 = delisted = dead;
+    anything else = unmeasurable. Never infer death from an absence (red-team 2026-08-20)."""
+    try:
+        urllib.request.urlopen(urllib.request.Request(
+            f"https://api.geckoterminal.com/api/v2/networks/{net}/pools/{addr}",
+            headers={"Accept": "application/json", "User-Agent": "bbp-survey/0.1"}), timeout=20)
+        return "unmeasurable"
+    except urllib.error.HTTPError as e:
+        return "dead" if e.code == 404 else "unmeasurable"
+    except Exception:
+        return "unmeasurable"
 
 
 def to_float(v):
@@ -86,11 +107,16 @@ def main():
                 current = {}
                 for item in d.get("data", []):
                     ad = item["id"].split("_", 1)[1] if "_" in item["id"] else item["id"]
-                    current[ad] = to_float(item.get("attributes", {}).get("reserve_in_usd"))
+                    current[ad.lower()] = to_float(item.get("attributes", {}).get("reserve_in_usd"))
                 for addr, v in chunk:
-                    cur = current.get(addr)
-                    if addr not in current:
-                        dead += 1          # delisted counts as dead, per header
+                    cur = current.get(addr.lower())
+                    if addr.lower() not in current:
+                        verdict = confirm_absent(net, addr)
+                        if verdict == "dead":
+                            dead += 1
+                        else:
+                            unmeasurable.append(addr)
+                        time.sleep(SPACING)
                     elif cur is not None and cur < 0.05 * v["peak"]:
                         dead += 1
                     else:

@@ -31,6 +31,12 @@ def main():
     except Exception:
         sha = "unknown"
     cohorts = sorted((ROOT / "data" / "cohorts").glob("cohort_*.json"))
+    complete = 0
+    for c in cohorts:
+        try:
+            complete += 1 if json.loads(c.read_text()).get("completeness", {}).get("complete") else 0
+        except Exception:
+            pass
     snap_p = ROOT / "data" / "triggers_snapshot.json"
     snap = json.loads(snap_p.read_text()) if snap_p.exists() else None
 
@@ -108,12 +114,20 @@ def main():
     L.append("")
     L.append(f"- Pre-registered forecasts: **{len(forecasts)}** · graded: **{len(grades)}** "
              "(H1 needs ≥100 graded; calibration currently **unproven — n too small to claim anything**)")
-    L.append(f"- Survey cohorts collected: **{len(cohorts)}** (decision expects ~20 by 2026-08-24)")
+    L.append(f"- Survey cohorts collected: **{len(cohorts)}** — of which stamped complete: "
+             f"**{complete}** (stamping began 2026-08-20; earlier cohorts are unstamped, not incomplete). "
+             "Decision-wake threshold: <14 files journals a gap incident, <8 stops the survey")
     L.append(f"- Drills run: **{len(drills)}** — passed **{drill_pass}**, failed **{drill_fail}**, "
              f"unclassified **{drill_unc}** · Incidents: **{len(incidents)}** "
              f"(all incidents are public in JOURNAL.jsonl)")
-    L.append(f"- Revenue to date: **$0** · Capital deployed: **$0** · Budget envelope: "
-             f"**${caps['experiment_budget_usd_total']}** (untouched)")
+    # Money line is computed or declared unknown — never asserted (red-team 2026-08-20: this line
+    # hardcoded "envelope untouched" while overage credits had already been purchased).
+    spend_events = [e for e in j if e["type"] == "principal_action" and "credit" in e["body"].lower()]
+    L.append(f"- Revenue to date: **$0** (no revenue event in the journal) · Wallet capital deployed: "
+             f"**$0** (allowance ${caps['total_capital_allowance_usd']}) · Envelope "
+             f"**${caps['experiment_budget_usd_total']}**: **{len(spend_events)} principal credit "
+             "purchase(s) journaled, dollar amounts NOT reported to the firm — envelope spend is "
+             "therefore UNKNOWN, not zero**")
     L.append("")
     L.append("## Open risks (live, not archived)")
     L.append("")

@@ -45,6 +45,13 @@ def main():
         snapshot["networks"][net] = pools
     if failures:
         snapshot["failures"] = failures
+    # Completeness stamp (red-team A6, 2026-08-20): a census that counts FILES can be satisfied
+    # by empty or partial cohorts. Every cohort now carries the numbers a counter needs.
+    per_net = {n: len(snapshot["networks"][n]) for n in NETWORKS}
+    uniq = {n: len({p.get("id") for p in snapshot["networks"][n]}) for n in NETWORKS}
+    snapshot["completeness"] = {"pools_per_network": per_net, "unique_pools_per_network": uniq,
+                                "expected_per_network": PAGES * 20, "failed_fetches": len(failures),
+                                "complete": len(failures) == 0 and all(v >= PAGES * 20 for v in per_net.values())}
     out = outdir / f"cohort_{stamp}.json"
     out.write_text(json.dumps(snapshot, separators=(",", ":")))
     for net in NETWORKS:

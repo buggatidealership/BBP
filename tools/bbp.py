@@ -29,9 +29,22 @@ def append(path, obj):
 
 
 def read_jsonl(path):
+    """Tolerate corrupt lines but NEVER silently skip them: one malformed line used to kill
+    every reader (red-team A4, 2026-08-20). Bad lines are reported loudly to stderr."""
     if not path.exists():
         return []
-    return [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+    rows, bad = [], []
+    for i, l in enumerate(path.read_text().splitlines(), 1):
+        if not l.strip():
+            continue
+        try:
+            rows.append(json.loads(l))
+        except json.JSONDecodeError:
+            bad.append(i)
+    if bad:
+        print(f"WARNING: {path.name} has {len(bad)} malformed line(s) at {bad} — "
+              "read continued without them; fix the file before trusting any count.", file=sys.stderr)
+    return rows
 
 
 def cmd_journal(a):
@@ -91,6 +104,13 @@ def cmd_register(a):
     if not a.subject.strip():
         die("empty subject")
     rows = read_jsonl(FORECASTS)
+    # n-padding block (red-team A2, 2026-08-20): the same subject forecast repeatedly in the
+    # same class would inflate n toward H1's >=100 without adding evidence.
+    key = (a.fclass, str(spec["subject_id"]).lower())
+    if any((r.get("class"), str(r.get("criterion_spec", {}).get("subject_id", "")).lower()) == key
+           for r in rows if r.get("type") == "forecast"):
+        die(f"{a.fclass}/{spec['subject_id']} already forecast — one forecast per subject per class; "
+            "repeats pad n without adding evidence")
     fid = f"F{sum(1 for r in rows if r.get('type') == 'forecast') + 1:05d}"
     append(FORECASTS, {"type": "forecast", "id": fid,
                        "ts_registered": utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -113,6 +133,12 @@ def cmd_grade(a):
         die(f"grader session equals author session ({a.session}) — constructor never grades own work")
     if a.outcome not in ("0", "1"):
         die("outcome must be 0 or 1")
+    # Asymmetric deadline rule (red-team A1, 2026-08-20): an event OCCURRING is observable early,
+    # but "it never happened" is only knowable once the window closes.
+    deadline = datetime.datetime.fromisoformat(fc["deadline"].replace("Z", "+00:00"))
+    if a.outcome == "0" and utcnow() < deadline:
+        die(f"cannot grade outcome=0 before the deadline ({fc['deadline']}) — non-occurrence is not "
+            "observable until the window closes; outcome=1 may be graded as soon as the event occurs")
     if len(a.receipt.strip()) < 20:
         die("receipt under 20 chars — a grade without evidence is a claim")
     append(FORECASTS, {"type": "grade", "forecast_id": a.id, "outcome": int(a.outcome),
@@ -137,8 +163,23 @@ def cmd_calibration(a):
     fcs = {r["id"]: r for r in rows if r.get("type") == "forecast"}
     pairs = [(fcs[g["forecast_id"]]["probability"], g["outcome"])
              for g in rows if g.get("type") == "grade" and g.get("forecast_id") in fcs]
+    classes = {}
+    for g in rows:
+        if g.get("type") == "grade" and g.get("forecast_id") in fcs:
+            classes.setdefault(fcs[g["forecast_id"]].get("class", "?"), []).append(
+                (fcs[g["forecast_id"]]["probability"], g["outcome"]))
     n = len(pairs)
     print(f"graded forecasts: n={n} (H1 requires >=100)")
+    if len(classes) > 1:
+        print(f"NOTE: {len(classes)} forecast classes present {dict((k, len(v)) for k, v in classes.items())} — "
+              "pooling classes with different base rates makes the pooled figure uninterpretable "
+              "(red-team A3, 2026-08-20). Per-class results below are the ones H1 is judged on.")
+        for cname, cp in sorted(classes.items()):
+            cb = sum(o for _, o in cp) / len(cp)
+            bm = sum((pr - o) ** 2 for pr, o in cp) / len(cp)
+            bb = sum((cb - o) ** 2 for _, o in cp) / len(cp)
+            print(f"  [{cname}] n={len(cp)} base={cb:.4f} brier={bm:.4f} vs base_brier={bb:.4f} "
+                  f"improvement={bb - bm:+.4f}")
     if n == 0:
         return
     base = sum(o for _, o in pairs) / n
