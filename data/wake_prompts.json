@@ -1,6 +1,6 @@
 {
- "exported": "2026-08-20",
- "note": "Mirror of live scheduler prompts. The scheduler is authoritative; this copy exists so wake instructions are reviewable and lintable by any session. Re-export when a prompt changes.",
+ "exported": "2026-08-20T19:25Z",
+ "note": "Mirror of live scheduler prompts. The scheduler is authoritative; this copy exists so wake instructions are reviewable and lintable by any session. Re-export whenever a prompt changes (a step in the decision wake; the G0 check verifies this file's age). NOTE: the sampler wake's prompt cannot be edited from the orchestrator session, so its guards live in tools/sample.py.",
  "wakes": {
   "trig_01Q9UeJmEysr9tPUed1kpoLz": {
    "name": "H1.0 survey sampler (8h, Sonnet sibling)",
