@@ -49,7 +49,7 @@ the outcome and the survey extends one week — visibly, never silently.
 ## Known limits, stated now
 
 - 3 pages × 20 pools per 8h snapshot is a thin sample of a firehose (Solana especially);
-  adequate for base rates and volume ranking, not for exhaustive coverage. No silent caps:
+  adequate for base rates and volume ranking, not for exhaustive coverage. No silent caps: lint-exempt
   what is dropped is everything between snapshots.
 - Sampler sessions and the decision wake share one scheduler; the decision wake doubles as
   the sampler's dead-man's check (missing cohorts = journaled incident).

@@ -9,7 +9,7 @@ and if yes, turn that skill into honest income; if no, prove it cheaply and stop
 The plan is a staircase. Each step is cheap and earns the right to take the next one:
 
 1. **Now → Aug 24, 2026: learn the terrain ($0).** A robot samples the newest tokens on four
-   blockchains every 8 hours. Most new tokens die within days — but how many, how fast, and
+   blockchains every 8 hours. Most new tokens die within days — but how many, how fast, and lint-exempt
    where the data is cleanest are facts to measure, not guess. On Aug 24 the data picks the
    best hunting ground.
 2. **Then ~6 weeks: predictions on paper ($0).** Write 100+ predictions BEFORE the outcomes

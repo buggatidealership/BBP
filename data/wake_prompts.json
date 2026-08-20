@@ -1,0 +1,46 @@
+{
+ "exported": "2026-08-20",
+ "note": "Mirror of live scheduler prompts. The scheduler is authoritative; this copy exists so wake instructions are reviewable and lintable by any session. Re-export when a prompt changes.",
+ "wakes": {
+  "trig_01Q9UeJmEysr9tPUed1kpoLz": {
+   "name": "H1.0 survey sampler (8h, Sonnet sibling)",
+   "cron": "5 */8 * * *",
+   "run_once_at": null,
+   "next_run_at": "2026-08-20T16:05:00Z",
+   "target": "session_01MAs3kxUM3LnASzsJT8VnDi",
+   "prompt": "Scheduled sampling wake. Run one full sampling cycle per your standing instructions: git checkout main && git pull origin main; python3 tools/sample.py; append a sampling_run event to JOURNAL.jsonl via python3 tools/bbp.py --session session-<date>-sampler journal sampling_run fact \"<cohort filename and per-network pool counts, or IT FAILED + error>\"; commit and push to main (pull --rebase on rejection; on a JOURNAL.jsonl append conflict keep both sides, remote first; 4 backoff retries). Nothing else."
+  },
+  "trig_01LfQpSKB8BAvEpbUgNwGESM": {
+   "name": "BBP weekly ops brief (Mondays)",
+   "cron": "0 7 * * 1",
+   "run_once_at": null,
+   "next_run_at": "2026-08-24T07:08:19.478862625Z",
+   "target": "fresh_session",
+   "prompt": "You are the weekly ops-brief shift for the BBP agent firm. Standalone instructions, no prior context. Clone https://github.com/buggatidealership/BBP (read-only is fine \u2014 you cannot push and must not try). Read STATUS.md, then the last ~25 lines of JOURNAL.jsonl, then GOAL.md's gate table. Compose the principal's weekly brief in plain natural language, no jargon, under 250 words, in exactly this shape: (1) THE WEEK \u2014 what actually happened, including every incident and IT FAILED event verbatim-honest; (2) NEXT \u2014 the concrete scheduled things coming in the next 7 days with dates; (3) NEEDS YOU \u2014 every open principal_pending item, or the sentence \"Nothing needs you.\"; (4) NUMBERS \u2014 graded forecasts n, cohorts collected, revenue to date, capital at risk, incidents count. Never soften a failure; never claim progress the journal does not show; if the journal shows nothing happened, say the week was quiet. End your session with the brief as your final message \u2014 it is delivered to the principal's phone and inbox as the completion notification."
+  },
+  "trig_013WCQmMWwVVq5ZKA22Qcods": {
+   "name": "H1.0 survey decision wake (T0+7d)",
+   "cron": null,
+   "run_once_at": "2026-08-24T12:00:00Z",
+   "next_run_at": "2026-08-24T12:00:00Z",
+   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+   "prompt": "H1.0 survey decision wake, pre-registered 2026-08-17 per OBSERVATION.md. Work on branch main: git checkout main && git pull origin main. First count cohorts in data/cohorts/ \u2014 expected ~20 (8h cadence since 2026-08-17, one lost to the 403 incident); a large shortfall means sampler sessions failed silently: journal it as an incident (this wake is the sampler's dead-man's check). Then grade outcomes with the PRE-BUILT, SMOKE-TESTED instrument: python3 tools/outcomes.py --min-age-hours 72 (definitions are fixed in its header \u2014 do not redefine them; its 2026-08-18 smoke test at 24h passed 100/100 measurable). Compute the four pre-registered OBSERVATION.md criteria (volume 30%, base-rate measurability 30%, resolution speed 20%, data reliability 20% \u2014 reliability data lives in the sampling_run journal lines including the 429 events), rank the networks, journal the scores and the winning venue. Then begin H1 per STRATEGY.md's H1 design notes: BOTH forecast classes (death-class and survivor-class), thresholds pre-registered before the first live forecast, forecasts entered via tools/bbp.py forecast-register with machine-decidable criterion-specs, grading always by a non-author session. Register the needed wakes (forecast cadence \u2014 correcting the diurnal fixed-clock-times bias noted in OBSERVATION.md \u2014 plus grading wakes); if trigger-management tools are unavailable in this fired session, journal the registrations as pending actions and alert the principal. Decide the sampler cron's fate (trig_01BPJ3f9pFWDhjUQXoa1FFoh) and journal it. Regenerate STATUS.md via tools/status.py. If data is insufficient to score, extend the survey one week visibly per OBSERVATION.md. Push everything to main."
+  },
+  "trig_01Fe4C8wmE4pkaGPqGhHuLqP": {
+   "name": "G0 dead-man's switch (T0+1mo+1d)",
+   "cron": null,
+   "run_once_at": "2026-09-18T12:00:00Z",
+   "next_run_at": "2026-09-18T12:00:00Z",
+   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+   "prompt": "DEAD-MAN'S SWITCH for the G0 gate check (registered 2026-08-17). The G0 gate check (trig_01JyCEd2DpPpnSH6UsL7MrMn) was due to fire 2026-09-17T12:00:00Z. Work on branch main: git checkout main && git pull origin main, then read JOURNAL.jsonl. Verify whether a G0 gate-check outcome event was appended on or after 2026-09-17. Compute, do not recall. If YES: journal that the dead-man's switch found the gate check ran (drill of the switch itself also thereby proven), then this switch's job is done. If NO: the G0 trigger silently failed \u2014 journal the failure as an incident (this is exactly the failure class PRINCIPLES.md rule 5 exists for), run the G0 gate check yourself per GOAL.md (including the independent re-drill of tools/bbp.py gates), and surface the scheduler failure to the principal as an alarm-worthy event. Either way, ensure the next gate's dead-man's switch gets registered when the next gate is scheduled (journal it as a pending action if trigger tools are unavailable), and push everything to main."
+  },
+  "trig_01JyCEd2DpPpnSH6UsL7MrMn": {
+   "name": "G0 gate check (T0+1mo)",
+   "cron": null,
+   "run_once_at": "2026-09-17T12:00:00Z",
+   "next_run_at": "2026-09-17T12:00:00Z",
+   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+   "prompt": "G0 gate check, scheduled at T0 (2026-08-17) per GOAL.md. Work on branch main: git checkout main && git pull origin main. Verify whether G0 is met \u2014 journal exists and is in use, obligations are scheduler-registered, a promotion gate and money caps exist, and at least one drill has proven an enforcer fires. Per the journaled honesty note (2026-08-17 drill_result), re-drill the write-path gates independently before certifying: attempt an invalid forecast registration and a self-grade with tools/bbp.py and confirm both are REJECTED. Compute every answer from the repo and git, never from memory. Append the outcome to JOURNAL.jsonl, update the gate table in GOAL.md, register the G1 trigger (due 2026-11-17) as a real scheduler entry plus its dead-man's switch one day later (if trigger-management tools are unavailable in this fired session, journal the registrations as pending actions and alert the principal), and push to main. If G0 fails, its kill condition applies: no further work until it passes."
+  }
+ }
+}

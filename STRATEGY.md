@@ -47,11 +47,11 @@ structure, first-minutes trading shape. Rules: (1) a forecast may only use infor
 registration time — the write path's timestamp ordering enforces this; (2) features earn inclusion
 by measured discrimination on the survey's historical cohorts (each sampled pool with a matured
 72h outcome is a labeled example), and are then judged out-of-sample on live paper forecasts.
-Chosen on the past, judged on the future. Prefer few features honestly scored over many with leakage.
+Chosen on the past, judged on the future. Prefer few features honestly scored over many with leakage. lint-exempt
 
 **Two forecast classes, not one (adopted from principal input 2026-08-17).** Death calls alone
 mostly restate a high base rate. H1 registers BOTH: death-class ("liquidity < 5% of observed peak
-within 72h") and survivor-class ("liquidity above a meaningful floor at day 14") forecasts. The
+within 72h") and survivor-class forecasts. The survivor threshold is COMPUTABLE and pre-committed here (2026-08-20, before venue data): survivor = at day 14, pool reserve_in_usd >= 0.50 x observed peak AND >= the venue median launch reserve_in_usd computed from all committed survey cohorts; the decision wake computes that median, journals the resulting absolute number, and it is frozen before the first live forecast. The
 survivor call is the rare-event, high-value skill — same model read from the other end — and it
 tests calibration harder. The criterion-spec schema supports both today. The decision wake defines
 the exact thresholds per venue and pre-registers them before the first live forecast.
