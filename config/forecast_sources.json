@@ -1,0 +1,12 @@
+{
+  "rule": "A forecast's criterion source must be a data source OUTSIDE the firm. Forecasting a file the firm itself writes is the ruler measuring itself: the author controls the outcome, and the resulting Brier score measures nothing about the world. Registration refuses any source not listed here, and refuses any source naming a path inside the repository.",
+  "added": "2026-08-21",
+  "reason": "F00001 and F00002 were registered against JOURNAL.jsonl on 2026-08-21 - forecasts about the firm's own defect stream, one of which the author could satisfy by deciding to. The principal caught it: the firm is in survey phase and is not doing predictions yet. Withdrawn, and this gate added so the write path refuses the class rather than relying on judgment.",
+  "external_sources": [
+    "geckoterminal:pools",
+    "geckoterminal:pool_ohlcv"
+  ],
+  "forbidden_substrings": [
+    "JOURNAL", "FORECASTS", "STATUS", "config/", "data/", "tools/", ".md", ".jsonl"
+  ]
+}

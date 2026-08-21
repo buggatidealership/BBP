@@ -103,6 +103,13 @@ def cmd_register(a):
         die("deadline is not in the future — nothing to pre-register")
     if not a.subject.strip():
         die("empty subject")
+    # The source must be OUTSIDE the firm. F00001/F00002 (2026-08-21) were registered against
+    # JOURNAL.jsonl - the firm forecasting its own ledger, with the author able to satisfy one
+    # of them by choosing to. A Brier score computed over self-authored outcomes measures
+    # nothing. This is the ruler-measuring-itself problem inside the forecast register.
+    _bad = source_violation(spec.get("source", ""))
+    if _bad:
+        die(_bad)
     rows = read_jsonl(FORECASTS)
     # n-padding block (red-team A2, 2026-08-20): the same subject forecast repeatedly in the
     # same class would inflate n toward H1's >=100 without adding evidence.
@@ -158,9 +165,54 @@ def cmd_promote(a):
     print("promoted")
 
 
+def source_violation(src):
+    """Return a rejection message if this criterion source is not an approved external one,
+    else None. Shared by registration and by withdrawal, which is what makes withdrawal safe:
+    a forecast may only be retracted if the CURRENT gates would refuse to register it."""
+    fs = json.loads((ROOT / "config" / "forecast_sources.json").read_text())
+    src = str(src).strip()
+    bad = [t for t in fs["forbidden_substrings"] if t.lower() in src.lower()]
+    if bad:
+        return (f"criterion source {src!r} names the firm's own artifacts ({bad}) — a forecast "
+                "whose outcome the firm writes is not a forecast. Source must be external.")
+    if src not in fs["external_sources"]:
+        return (f"criterion source {src!r} is not an approved external source. Approved: "
+                f"{fs['external_sources']}. Add it to config/forecast_sources.json first, "
+                "as a deliberate act, before forecasting against it.")
+    return None
+
+
+def cmd_withdraw(a):
+    """Retract a forecast that the CURRENT gates would refuse to register.
+
+    Withdrawal is otherwise the perfect calibration cheat: retract every prediction that starts
+    to look wrong and the Brier score becomes a record of the ones that went well. So the only
+    admissible reason is structural - a gate added after registration now rejects this forecast's
+    own stored spec. That is computable, and it is checked here rather than argued."""
+    rows = read_jsonl(FORECASTS)
+    fc = next((r for r in rows if r.get("type") == "forecast" and r.get("id") == a.id), None)
+    if fc is None:
+        die(f"no forecast {a.id}")
+    if any(r.get("type") == "grade" and r.get("forecast_id") == a.id for r in rows):
+        die(f"{a.id} is already graded — a graded forecast stays in the record permanently")
+    if any(r.get("type") == "withdrawal" and r.get("forecast_id") == a.id for r in rows):
+        die(f"{a.id} already withdrawn")
+    why = source_violation(fc.get("criterion_spec", {}).get("source", ""))
+    if why is None:
+        die(f"{a.id} still passes every current registration gate. A live forecast may not be "
+            "retracted: withdrawing predictions that look like losing is how a calibration "
+            "record becomes a highlight reel.")
+    append(FORECASTS, {"type": "withdrawal", "forecast_id": a.id,
+                       "ts": utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                       "gate_that_refuses_it": why, "reason": a.reason.strip(),
+                       "session": a.session})
+    print(f"withdrawn: {a.id} — excluded from calibration, record retained")
+
+
 def cmd_calibration(a):
     rows = read_jsonl(FORECASTS)
-    fcs = {r["id"]: r for r in rows if r.get("type") == "forecast"}
+    gone = {r["forecast_id"] for r in rows if r.get("type") == "withdrawal"}
+    fcs = {r["id"]: r for r in rows if r.get("type") == "forecast" and r["id"] not in gone}
     pairs = [(fcs[g["forecast_id"]]["probability"], g["outcome"])
              for g in rows if g.get("type") == "grade" and g.get("forecast_id") in fcs]
     classes = {}
@@ -209,10 +261,13 @@ def main():
     g.add_argument("--id", required=True); g.add_argument("--outcome", required=True); g.add_argument("--receipt", required=True)
     p = sub.add_parser("promote")
     p.add_argument("--claim", required=True); p.add_argument("--claim-source", required=True); p.add_argument("--receipt", required=True)
+    wd = sub.add_parser("forecast-withdraw")
+    wd.add_argument("--id", required=True); wd.add_argument("--reason", required=True)
     c = sub.add_parser("calibration"); c.add_argument("--seed", type=int, default=17)
     a = ap.parse_args()
     {"journal": cmd_journal, "forecast-register": cmd_register, "forecast-grade": cmd_grade,
-     "promote": cmd_promote, "calibration": cmd_calibration}[a.cmd](a)
+     "promote": cmd_promote, "calibration": cmd_calibration,
+     "forecast-withdraw": cmd_withdraw}[a.cmd](a)
 
 
 if __name__ == "__main__":
