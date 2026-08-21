@@ -1,0 +1,81 @@
+{
+ "_": "Executable wake sequences. A wake prompt is ONE line: python3 tools/boot.py --run <id>. The steps below are executed by the runner, in order, halting on failure. No session interprets them, so none can skip, reorder, or claim a step it did not run: the runner writes the receipt, not the model.",
+ "wakes": {
+  "sampler": {
+   "description": "8-hourly survey sample",
+   "steps": [
+    [
+     "git",
+     "checkout",
+     "main"
+    ],
+    [
+     "git",
+     "pull",
+     "--rebase",
+     "--autostash",
+     "origin",
+     "main"
+    ],
+    [
+     "python3",
+     "tools/sample.py"
+    ],
+    [
+     "python3",
+     "tools/status.py"
+    ],
+    [
+     "python3",
+     "tools/selfcheck.py"
+    ],
+    [
+     "git",
+     "add",
+     "-A"
+    ],
+    [
+     "__commit__",
+     "Sample survey cohort"
+    ],
+    [
+     "__push__",
+     "main"
+    ]
+   ],
+   "on_step_failure": "halt_and_journal"
+  },
+  "healthcheck": {
+   "description": "Verify the machine and record a receipt, nothing else",
+   "steps": [
+    [
+     "git",
+     "checkout",
+     "main"
+    ],
+    [
+     "git",
+     "pull",
+     "--rebase",
+     "--autostash",
+     "origin",
+     "main"
+    ],
+    [
+     "python3",
+     "tools/selfcheck.py"
+    ],
+    [
+     "python3",
+     "tools/lint.py"
+    ],
+    [
+     "python3",
+     "tools/render.py",
+     "--check"
+    ]
+   ],
+   "on_step_failure": "halt_and_journal"
+  }
+ }
+}

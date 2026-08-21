@@ -135,6 +135,19 @@ lines = [l for l in rm.splitlines() if l.strip() and not l.strip().startswith("<
 check("I15 README is a boot sector", "python3 tools/boot.py" in rm and len(lines) <= 20,
       f"{len(lines)} content lines (max 20) / boot command present: {'python3 tools/boot.py' in rm}")
 
+# --- I16 wake prompts are invocations, not procedures ---------------------------------
+wp_path = ROOT / "data" / "wake_prompts.json"
+if wp_path.exists():
+    wakes = json.loads(wp_path.read_text()).get("wakes", {})
+    # Every wake must EXECUTE the machine before anything else. Judgment may follow the
+    # invocation, but the mechanical part is run by the runner, never narrated to a model
+    # (principal, 2026-08-21: an instruction a model must follow is where hallucination lives).
+    prose = [v["name"] for v in wakes.values() if "tools/boot.py" not in v.get("prompt", "")]
+    check("I16 wakes invoke boot", not prose,
+          f"{len(prose)} wake(s) never invoke tools/boot.py: {[p[:30] for p in prose]}")
+else:
+    warn("I16 wakes are invocations", "no wake mirror to check")
+
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
 for p in PASSES: print(f"  PASS  {p}")

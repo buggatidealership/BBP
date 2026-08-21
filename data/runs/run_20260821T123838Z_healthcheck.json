@@ -1,0 +1,20 @@
+{
+ "wake": "healthcheck",
+ "started": "2026-08-21T12:38:38Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "M\ttools/boot.py\nYour branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase origin main",
+   "exit": 128,
+   "tail": "error: cannot pull with rebase: You have unstaged changes.\nerror: Please commit or stash them."
+  }
+ ],
+ "ended": "2026-08-21T12:38:38Z",
+ "result": "HALTED at step 2"
+}

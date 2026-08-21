@@ -23,7 +23,50 @@ def jrows():
             except json.JSONDecodeError: pass
     return rows
 
+def run_wake(wake_id):
+    """EXECUTE a wake's sequence. The model's only act is invoking this; every step is run by
+    the runner, in order, halting on failure. A receipt is written by the RUNNER with each
+    step's exit code, so a session that claims work it did not do produces no receipt and the
+    claim is detectable (principal, 2026-08-21: instructions are where hallucination lives)."""
+    now = datetime.datetime.now(datetime.timezone.utc)
+    cfg = R("config/wakes.json")["wakes"]
+    if wake_id not in cfg:
+        print(f"UNKNOWN WAKE '{wake_id}'. Known: {sorted(cfg)}")
+        return 2
+    seq = cfg[wake_id]
+    stamp = now.strftime("%Y%m%dT%H%M%SZ")
+    receipt = {"wake": wake_id, "started": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "steps": []}
+    print(f"RUN WAKE '{wake_id}' — {len(seq['steps'])} steps, executed not interpreted")
+    failed = None
+    for i, step in enumerate(seq["steps"], 1):
+        if step[0] == "__commit__":
+            subprocess.run(["git", "commit", "-q", "-m", f"{step[1]} {stamp} (wake: {wake_id})"],
+                           cwd=ROOT, capture_output=True, text=True)
+            cmd, rc, out = f"git commit -m '{step[1]} {stamp}'", 0, "(commit may be empty)"
+        elif step[0] == "__push__":
+            r = subprocess.run(["git", "push", "origin", step[1]], cwd=ROOT, capture_output=True, text=True)
+            cmd, rc, out = f"git push origin {step[1]}", r.returncode, (r.stdout + r.stderr)[-300:]
+        else:
+            r = subprocess.run(step, cwd=ROOT, capture_output=True, text=True)
+            cmd, rc, out = " ".join(step), r.returncode, (r.stdout + r.stderr)[-300:]
+        receipt["steps"].append({"n": i, "cmd": cmd, "exit": rc, "tail": out.strip()[-200:]})
+        print(f"  [{i}/{len(seq['steps'])}] exit={rc}  {cmd}")
+        if rc != 0:
+            failed = i
+            break
+    receipt["ended"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    receipt["result"] = "OK" if failed is None else f"HALTED at step {failed}"
+    rdir = ROOT / "data" / "runs"; rdir.mkdir(parents=True, exist_ok=True)
+    (rdir / f"run_{stamp}_{wake_id}.json").write_text(json.dumps(receipt, indent=1) + "\n")
+    print(f"RECEIPT data/runs/run_{stamp}_{wake_id}.json — {receipt['result']}")
+    if failed:
+        print("IT FAILED: the sequence halted. Report this verbatim; do not continue past it.")
+    return 0 if failed is None else 1
+
+
 def main():
+    if "--run" in sys.argv:
+        return run_wake(sys.argv[sys.argv.index("--run") + 1])
     now = datetime.datetime.now(datetime.timezone.utc)
     g, s, b = R("config/gates.json"), R("config/survey.json"), R("config/boot.json")
     j = jrows()
