@@ -1,0 +1,50 @@
+{
+ "wake": "decision",
+ "started": "2026-08-21T17:07:55Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "M\tconfig/wakes.json\nYour branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase --autostash origin main",
+   "exit": 0,
+   "tail": "Already up to date.\nFrom https://github.com/buggatidealership/BBP\n * branch            main       -> FETCH_HEAD"
+  },
+  {
+   "n": 3,
+   "cmd": "python3 tools/onceonly.py venue_decision",
+   "exit": 0,
+   "tail": "no venue_decision event yet \u2014 this firing is the first"
+  },
+  {
+   "n": 4,
+   "cmd": "python3 tools/audit.py",
+   "exit": 0,
+   "tail": "AUDIT 13 tools \u2014 0 finding(s), 0 waived\nclean: no unwaived findings"
+  },
+  {
+   "n": 5,
+   "cmd": "python3 tools/selfcheck.py",
+   "exit": 0,
+   "tail": "teps are measured: boot.py records raw_exit + head_before/head_after per commit step\n  PASS  I19 no known defect class present: AUDIT 13 tools \u2014 0 finding(s), 0 waived\n\n19 passed, 0 warnings, 0 FAILED"
+  },
+  {
+   "n": 6,
+   "cmd": "python3 tools/census.py",
+   "exit": 0,
+   "tail": "lete: 5)\n  solana     1060 pool observations\n  base       1080 pool observations\n  eth        1060 pool observations\n  bsc        1040 pool observations\nthresholds: gap incident below 14, STOP below 8"
+  },
+  {
+   "n": 7,
+   "cmd": "python3 tools/outcomes.py --min-age-hours 72",
+   "exit": 0,
+   "tail": "9Eg1Wzxe9UTodEgH6hQLCbDm: HTTP Error 429: Too Many Requests\nsolana: mature 232, measurable 157, dead 14, alive 143, death_rate 0.0892, unmeasurable 75\nwrote data/outcomes/outcome_20260821T170757Z.json"
+  }
+ ],
+ "ended": "2026-08-21T17:12:07Z",
+ "result": "OK"
+}
