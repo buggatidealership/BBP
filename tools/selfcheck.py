@@ -178,6 +178,15 @@ check("I18 commit steps are measured", _i18,
       "boot.py hardcodes a commit exit code instead of recording git's" if not _i18
       else "boot.py records raw_exit + head_before/head_after per commit step")
 
+# --- I19 no known defect class reintroduced -------------------------------------------
+# tools/audit.py holds one detector per defect class that has actually reached main. The
+# principal observed 2026-08-21 that every "check this" surfaced a new defect; the detectors
+# exist so the SECOND instance of a class is caught here rather than by their attention.
+_r19 = subprocess.run([sys.executable, str(ROOT / "tools" / "audit.py")], cwd=ROOT,
+                      capture_output=True, text=True)
+check("I19 no known defect class present", _r19.returncode == 0,
+      (_r19.stdout.strip().splitlines() or ["?"])[0])
+
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
 for p in PASSES: print(f"  PASS  {p}")

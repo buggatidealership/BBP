@@ -135,7 +135,18 @@ def main():
     # I10 on the next CI run. Main was red for 9 hours on 2026-08-21 for exactly this reason.
     # The sampler's wake prompt cannot be edited from the orchestrator session, so the fix
     # lives here, in the tool every sampling run must call.
-    subprocess.run([sys.executable, str(ROOT / "tools" / "status.py")], capture_output=True)
+    _st = subprocess.run([sys.executable, str(ROOT / "tools" / "status.py")],
+                         capture_output=True, text=True)
+    if _st.returncode != 0:
+        # This line used to discard the exit code and print the success message regardless.
+        # status.py crashed on 2026-08-21 (KeyError on an unfamiliar event shape); had that
+        # happened during a real sampling run, the sampler would have announced "regenerated
+        # STATUS.md" and exited 0 with a stale board and a red invariant. Never claim the
+        # result of a call you did not read.
+        print(f"IT FAILED: status.py exited {_st.returncode}; STATUS.md was NOT regenerated "
+              f"and invariant I10 will fail. Cohort {out.name} is written and safe.\n"
+              f"{(_st.stdout + _st.stderr)[-500:]}", file=sys.stderr)
+        sys.exit(5)
     print("regenerated STATUS.md (keeps invariant I10 green)")
 
 if __name__ == "__main__":

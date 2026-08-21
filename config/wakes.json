@@ -27,6 +27,10 @@
         ],
         [
           "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
           "tools/selfcheck.py"
         ],
         [
@@ -63,6 +67,10 @@
         ],
         [
           "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
           "tools/selfcheck.py"
         ],
         [
@@ -92,6 +100,41 @@
         [
           "__push__",
           "main"
+        ]
+      ]
+    },
+    "audit": {
+      "purpose": "Static audit of every tool against the defect classes this firm has shipped, plus the full invariant set. Runs the machine over itself without anyone asking.",
+      "steps": [
+        [
+          "git",
+          "checkout",
+          "main"
+        ],
+        [
+          "git",
+          "pull",
+          "--rebase",
+          "--autostash",
+          "origin",
+          "main"
+        ],
+        [
+          "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
+          "tools/selfcheck.py"
+        ],
+        [
+          "python3",
+          "tools/lint.py"
+        ],
+        [
+          "python3",
+          "tools/render.py",
+          "--check"
         ]
       ]
     }
