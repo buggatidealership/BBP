@@ -1,0 +1,38 @@
+{
+ "wake": "healthcheck",
+ "started": "2026-08-21T13:11:48Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "M\ttools/boot.py\nYour branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase --autostash origin main",
+   "exit": 0,
+   "tail": "Already up to date.\nFrom https://github.com/buggatidealership/BBP\n * branch            main       -> FETCH_HEAD"
+  },
+  {
+   "n": 3,
+   "cmd": "python3 tools/selfcheck.py",
+   "exit": 0,
+   "tail": "son\n  PASS  I15 README is a boot sector: 14 content lines (max 20) / boot command present: True\n  PASS  I16 wakes invoke boot: 0 wake(s) never invoke tools/boot.py: []\n\n16 passed, 0 warnings, 0 FAILED"
+  },
+  {
+   "n": 4,
+   "cmd": "python3 tools/lint.py",
+   "exit": 0,
+   "tail": "LINT PASS: no non-computable terms in operational claims"
+  },
+  {
+   "n": 5,
+   "cmd": "python3 tools/render.py --check",
+   "exit": 0,
+   "tail": "no drift: compiled docs match machine state"
+  }
+ ],
+ "ended": "2026-08-21T13:11:49Z",
+ "result": "OK"
+}
