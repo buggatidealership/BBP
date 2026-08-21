@@ -129,6 +129,12 @@ check("I14 no duplicated survey constants", _ok14,
       "sample.py hardcodes a date instead of reading config/survey.json" if not _ok14
       else "sample.py reads config/survey.json")
 
+# --- I15 boot path is executable, not a reading list ---------------------------------
+rm = (ROOT / "README.md").read_text()
+lines = [l for l in rm.splitlines() if l.strip() and not l.strip().startswith("<!--")]
+check("I15 README is a boot sector", "python3 tools/boot.py" in rm and len(lines) <= 20,
+      f"{len(lines)} content lines (max 20) / boot command present: {'python3 tools/boot.py' in rm}")
+
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
 for p in PASSES: print(f"  PASS  {p}")

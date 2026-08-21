@@ -62,8 +62,24 @@ def observation_md():
     return "\n".join(L) + "\n"
 
 
+def readme_md():
+    g = json.loads((ROOT / "config" / "gates.json").read_text())
+    return (BANNER.format(src="config/gates.json + config/boot.json") +
+            "# BBP\n\n"
+            f"**Goal.** {g['goal_one_line']}\n\n"
+            "**Boot.**\n\n```\npython3 tools/boot.py\n```\n\n"
+            "Exit 0 prints the machine's computed state and your constraints. Exit 1 means an\n"
+            "invariant is broken and fixing it is the only authorised work.\n\n"
+            "Everything else in this repository is either machine state (`config/*.json`), an\n"
+            "append-only record (`JOURNAL.jsonl`, `FORECASTS.jsonl`), a tool that enforces\n"
+            "something, or a page compiled from those. No file here asks to be obeyed: the\n"
+            "constraints that matter are executed by the tools and verified by CI, and the\n"
+            "prose exists so a human can audit the machine without running it.\n")
+
+
 def main():
-    targets = {ROOT / "GOAL.md": goal_md(), ROOT / "OBSERVATION.md": observation_md()}
+    targets = {ROOT / "GOAL.md": goal_md(), ROOT / "OBSERVATION.md": observation_md(),
+               ROOT / "README.md": readme_md()}
     drift = []
     for path, content in targets.items():
         if "--check" in sys.argv:
