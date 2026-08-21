@@ -1,0 +1,26 @@
+{
+ "wake": "decision",
+ "started": "2026-08-21T17:05:35Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "M\tconfig/wakes.json\nYour branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase --autostash origin main",
+   "exit": 0,
+   "tail": "Already up to date.\nFrom https://github.com/buggatidealership/BBP\n * branch            main       -> FETCH_HEAD"
+  },
+  {
+   "n": 3,
+   "cmd": "python3 tools/audit.py",
+   "exit": 1,
+   "tail": "ed\n  D1-discarded-exit      tools/g0gate.py:26  subprocess.run result discarded: exit code never read\n\nIT FAILED: 1 unwaived finding(s). Fix, or waive by id in config/audit_waivers.json with a reason."
+  }
+ ],
+ "ended": "2026-08-21T17:05:37Z",
+ "result": "HALTED at step 3"
+}
