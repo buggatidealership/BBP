@@ -23,6 +23,11 @@ def jrows():
             except json.JSONDecodeError: pass
     return rows
 
+def _head():
+    r = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else "UNRESOLVED"
+
+
 def run_wake(wake_id):
     """EXECUTE a wake's sequence. The model's only act is invoking this; every step is run by
     the runner, in order, halting on failure. A receipt is written by the RUNNER with each
@@ -40,16 +45,41 @@ def run_wake(wake_id):
     failed = None
     for i, step in enumerate(seq["steps"], 1):
         if step[0] == "__commit__":
-            subprocess.run(["git", "commit", "-q", "-m", f"{step[1]} {stamp} (wake: {wake_id})"],
-                           cwd=ROOT, capture_output=True, text=True)
-            cmd, rc, out = f"git commit -m '{step[1]} {stamp}'", 0, "(commit may be empty)"
+            # NEVER hardcode this exit code. It was 0-by-literal until 2026-08-21, which meant
+            # the receipt asserted a commit it had not measured: git commit exits 1 on
+            # nothing-to-commit AND on real failures (no identity, hook rejection, index lock),
+            # and both were being recorded as success. A receipt containing a constant is not
+            # a receipt. Nothing-to-commit is a legitimate no-op and is labelled as one; every
+            # other non-zero halts the sequence.
+            before = _head()
+            # Whether this is a benign no-op is decided by MEASURING the index, not by
+            # matching git's English. The first version of this fix looked for the phrase
+            # "nothing to commit" and missed "no changes added to commit" on the very first
+            # drill: a detector keyed to prose is the same defect as a hardcoded exit code,
+            # one layer up. Empty index before the call == nothing to commit, full stop.
+            staged_empty = subprocess.run(["git", "diff", "--cached", "--quiet"],
+                                          cwd=ROOT, capture_output=True).returncode == 0
+            r = subprocess.run(["git", "commit", "-m", f"{step[1]} {stamp} (wake: {wake_id})"],
+                               cwd=ROOT, capture_output=True, text=True)
+            body = (r.stdout + r.stderr)
+            after = _head()
+            noop = r.returncode != 0 and staged_empty and after == before
+            cmd = f"git commit -m '{step[1]} {stamp}'"
+            rc = 0 if (r.returncode == 0 or noop) else r.returncode
+            out = (f"NO-OP: index empty, HEAD unchanged at {before[:12]}") if noop else body[-300:]
+            extra = {"head_before": before, "head_after": after, "staged_before": not staged_empty,
+                     "committed": bool(after != before), "raw_exit": r.returncode}
         elif step[0] == "__push__":
             r = subprocess.run(["git", "push", "origin", step[1]], cwd=ROOT, capture_output=True, text=True)
             cmd, rc, out = f"git push origin {step[1]}", r.returncode, (r.stdout + r.stderr)[-300:]
+            extra = {"head_after": _head()}
         else:
             r = subprocess.run(step, cwd=ROOT, capture_output=True, text=True)
             cmd, rc, out = " ".join(step), r.returncode, (r.stdout + r.stderr)[-300:]
-        receipt["steps"].append({"n": i, "cmd": cmd, "exit": rc, "tail": out.strip()[-200:]})
+            extra = {}
+        entry = {"n": i, "cmd": cmd, "exit": rc, "tail": out.strip()[-200:]}
+        entry.update(extra)
+        receipt["steps"].append(entry)
         print(f"  [{i}/{len(seq['steps'])}] exit={rc}  {cmd}")
         if rc != 0:
             failed = i
@@ -63,15 +93,33 @@ def run_wake(wake_id):
     # Committing it here, in code, means the evidence lands without any session choosing to do
     # it (found by the sampler session 2026-08-21: it had to commit the receipt by hand, which
     # made the record depend on a model's initiative — exactly what receipts exist to avoid).
-    subprocess.run(["git", "add", str(rpath.relative_to(ROOT))], cwd=ROOT, capture_output=True)
-    subprocess.run(["git", "commit", "-q", "-m", f"Receipt: {wake_id} run {stamp} ({receipt['result']})"],
-                   cwd=ROOT, capture_output=True)
+    rel = str(rpath.relative_to(ROOT))
+    ga = subprocess.run(["git", "add", rel], cwd=ROOT, capture_output=True, text=True)
+    gc = subprocess.run(["git", "commit", "-q", "-m",
+                         f"Receipt: {wake_id} run {stamp} ({receipt['result']})"],
+                        cwd=ROOT, capture_output=True, text=True)
     pr = subprocess.run(["git", "push", "origin", "main"], cwd=ROOT, capture_output=True, text=True)
-    print(f"RECEIPT data/runs/run_{stamp}_{wake_id}.json — {receipt['result']} "
-          f"(receipt commit+push exit={pr.returncode})")
+    # "Landed" is two facts, each measured, neither inferred from an exit code: the receipt is
+    # in HEAD's tree, and HEAD is what origin/main points at. `git ls-files` was used here for
+    # one drill and returned success for a merely STAGED receipt (2026-08-21) - staged is not
+    # committed, and committed is not pushed.
+    in_head = subprocess.run(["git", "cat-file", "-e", f"HEAD:{rel}"],
+                             cwd=ROOT, capture_output=True).returncode == 0
+    local = _head()
+    remote = subprocess.run(["git", "rev-parse", "origin/main"], cwd=ROOT,
+                            capture_output=True, text=True).stdout.strip()
+    landed = in_head and local == remote and remote != ""
+    print(f"RECEIPT {rel} — {receipt['result']} (add={ga.returncode} commit={gc.returncode} "
+          f"push={pr.returncode} in_head={in_head} head=={remote[:8]}: {local == remote})")
+    if not landed:
+        # An unpushed receipt is an invisible receipt: the work may have happened and no
+        # external party can see that it did. That is a failed run whatever the steps said.
+        print("IT FAILED: the receipt did not reach origin. The run is UNEVIDENCED. "
+              "Report this verbatim.", file=sys.stderr)
+        print((pr.stdout + pr.stderr)[-400:], file=sys.stderr)
     if failed:
         print("IT FAILED: the sequence halted. Report this verbatim; do not continue past it.")
-    return 0 if failed is None else 1
+    return 0 if (failed is None and landed) else 1
 
 
 def main():

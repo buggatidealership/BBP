@@ -1,0 +1,25 @@
+{
+ "wake": "selftest",
+ "started": "2026-08-21T14:21:34Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git status --short",
+   "exit": 0,
+   "tail": "M  config/wakes.json\n D data/runs/run_20260821T142028Z_selftest.json\nA  data/runs/run_20260821T142109Z_selftest.json\nMM tools/boot.py\nM  tools/selfcheck.py"
+  },
+  {
+   "n": 2,
+   "cmd": "git commit -m 'Selftest 20260821T142134Z'",
+   "exit": 1,
+   "tail": "",
+   "head_before": "3ad1177d5a9170ec3ec83e51a52fa3da60b9600e",
+   "head_after": "3ad1177d5a9170ec3ec83e51a52fa3da60b9600e",
+   "staged_before": true,
+   "committed": false,
+   "raw_exit": 1
+  }
+ ],
+ "ended": "2026-08-21T14:21:34Z",
+ "result": "HALTED at step 2"
+}

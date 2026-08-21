@@ -98,12 +98,17 @@ else:
 
 # --- I10 the board is not stale relative to the journal ------------------------------
 st = ROOT / "STATUS.md"
-if st.exists() and j:
-    m = re.search(r"at \*\*(\d{4}-\d{2}-\d{2})", st.read_text())
-    check("I10 board fresh", bool(m) and m.group(1) >= j[-1]["ts"],
-          f"STATUS.md generated {m.group(1) if m else '?'} but journal runs to {j[-1]['ts']}")
+if st.exists():
+    # Was a string comparison of the board's DATE against the newest journal timestamp. Both
+    # sides were date-only, so it could only ever fire across a midnight boundary and read any
+    # same-day staleness as fresh (found 2026-08-21). Now: regenerate and diff. No clock.
+    _r10 = subprocess.run([sys.executable, str(ROOT / "tools" / "status.py"), "--check"],
+                          cwd=ROOT, capture_output=True, text=True)
+    check("I10 board matches journal", _r10.returncode == 0,
+          (_r10.stdout + _r10.stderr).strip().splitlines()[-1] if _r10.returncode else
+          "regenerating status.py produces the committed board")
 else:
-    check("I10 board fresh", False, "STATUS.md missing")
+    check("I10 board matches journal", False, "STATUS.md missing")
 
 # --- I11 every open principal_pending item is visible on the board -------------------
 resolved = {e["body"].split("|", 1)[0].strip() for e in j if e["type"] == "principal_resolved"}
@@ -147,6 +152,31 @@ if wp_path.exists():
           f"{len(prose)} wake(s) never invoke tools/boot.py: {[p[:30] for p in prose]}")
 else:
     warn("I16 wakes are invocations", "no wake mirror to check")
+
+# --- I17 no orphan receipts -----------------------------------------------------------
+# A receipt on disk that git does not track is evidence nobody outside this container can
+# see. The run may have happened; it is unevidenced, which for a ledger is the same thing.
+rdir = ROOT / "data" / "runs"
+orphans = []
+if rdir.exists():
+    for f in sorted(rdir.glob("run_*.json")):
+        rel = str(f.relative_to(ROOT))
+        if subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=ROOT,
+                          capture_output=True).returncode != 0:
+            orphans.append(rel)
+check("I17 no untracked receipts", not orphans,
+      f"{len(orphans)} receipt(s) exist on disk but are not committed: {orphans[:3]}")
+
+# --- I18 receipts measure their commit steps ------------------------------------------
+# Until 2026-08-21 the runner hardcoded exit 0 for every commit step and wrote the literal
+# tail "(commit may be empty)". git commit exits 1 on nothing-to-commit and on real failures
+# alike, so a receipt could report success for a commit that never happened. A receipt
+# containing a constant is not a receipt; this is the regression guard.
+_bt = (ROOT / "tools" / "boot.py").read_text()
+_i18 = "(commit may be empty)" not in _bt and "raw_exit" in _bt and "head_after" in _bt
+check("I18 commit steps are measured", _i18,
+      "boot.py hardcodes a commit exit code instead of recording git's" if not _i18
+      else "boot.py records raw_exit + head_before/head_after per commit step")
 
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
