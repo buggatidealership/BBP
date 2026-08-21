@@ -10,7 +10,7 @@ Nothing in this output is recalled. Goal comes from config/gates.json, phase and
 from config/survey.json, prohibitions from config/boot.json, due work from the journal and
 the scheduler mirror, soundness from tools/selfcheck.py.
 """
-import json, os, subprocess, sys, datetime, pathlib
+import hashlib, json, os, subprocess, sys, datetime, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 R = lambda p: json.loads((ROOT / p).read_text())
@@ -22,6 +22,10 @@ def jrows():
             try: rows.append(json.loads(l))
             except json.JSONDecodeError: pass
     return rows
+
+def _selfhash():
+    return hashlib.sha256(pathlib.Path(__file__).resolve().read_bytes()).hexdigest()
+
 
 def _head():
     r = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
@@ -40,7 +44,10 @@ def run_wake(wake_id):
         return 2
     seq = cfg[wake_id]
     stamp = now.strftime("%Y%m%dT%H%M%SZ")
-    receipt = {"wake": wake_id, "started": now.strftime("%Y-%m-%dT%H:%M:%SZ"), "steps": []}
+    selfhash = _selfhash()
+    receipt = {"wake": wake_id, "started": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "runner_sha256": selfhash[:16],
+               "reexeced": bool(os.environ.get("BBP_BOOT_REEXEC")), "steps": []}
     print(f"RUN WAKE '{wake_id}' — {len(seq['steps'])} steps, executed not interpreted")
     failed = None
     for i, step in enumerate(seq["steps"], 1):
@@ -84,6 +91,19 @@ def run_wake(wake_id):
         if rc != 0:
             failed = i
             break
+        # THE RUNNER IS PART OF WHAT IT PULLS. Python reads this file once, at startup, so a
+        # `git pull` step that updates tools/boot.py does NOT change the code still executing:
+        # the rest of the sequence runs the old runner, and the receipt it writes is in the old
+        # format. Observed 2026-08-21 on the 16:15Z scheduled sampler run, whose step 7 carried
+        # the retired '(commit may be empty)' placeholder hours after that was fixed and pushed.
+        # Subprocess steps are unaffected - they load from disk - which is why the same receipt
+        # shows the NEW selfcheck's I19. Re-exec once, restarting from step 1; steps before a
+        # pull are checkout/pull and idempotent.
+        if _selfhash() != selfhash and not os.environ.get("BBP_BOOT_REEXEC"):
+            print(f"  RUNNER UPDATED by step {i}: tools/boot.py changed on disk. Re-executing "
+                  "so the rest of this wake runs the pulled code, not the code that started.")
+            os.environ["BBP_BOOT_REEXEC"] = "1"
+            os.execv(sys.executable, [sys.executable] + sys.argv)
     receipt["ended"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     receipt["result"] = "OK" if failed is None else f"HALTED at step {failed}"
     rdir = ROOT / "data" / "runs"; rdir.mkdir(parents=True, exist_ok=True)

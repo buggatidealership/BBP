@@ -172,11 +172,28 @@ check("I17 no untracked receipts", not orphans,
 # tail "(commit may be empty)". git commit exits 1 on nothing-to-commit and on real failures
 # alike, so a receipt could report success for a commit that never happened. A receipt
 # containing a constant is not a receipt; this is the regression guard.
+# Checked by PARSING boot.py, not by grepping it. v1 searched for the retired placeholder
+# string and was tripped by a source COMMENT quoting that string while explaining the bug -
+# a guard keyed to source text fails on any code that discusses itself.
+import ast as _ast
 _bt = (ROOT / "tools" / "boot.py").read_text()
-_i18 = "(commit may be empty)" not in _bt and "raw_exit" in _bt and "head_after" in _bt
+_const_rc = []
+for _n in _ast.walk(_ast.parse(_bt)):
+    if not isinstance(_n, _ast.Assign):
+        continue
+    for _t in _n.targets:
+        if isinstance(_t, _ast.Name) and _t.id == "rc" and isinstance(_n.value, _ast.Constant):
+            _const_rc.append(_n.lineno)
+        if isinstance(_t, _ast.Tuple):
+            for _i, _e in enumerate(_t.elts):
+                if isinstance(_e, _ast.Name) and _e.id == "rc" \
+                   and isinstance(_n.value, _ast.Tuple) and _i < len(_n.value.elts) \
+                   and isinstance(_n.value.elts[_i], _ast.Constant):
+                    _const_rc.append(_n.lineno)
+_i18 = not _const_rc and "raw_exit" in _bt
 check("I18 commit steps are measured", _i18,
-      "boot.py hardcodes a commit exit code instead of recording git's" if not _i18
-      else "boot.py records raw_exit + head_before/head_after per commit step")
+      f"boot.py assigns a literal exit code to rc at line(s) {_const_rc}" if _const_rc
+      else "no literal is ever assigned to a step's exit code; raw_exit recorded")
 
 # --- I19 no known defect class reintroduced -------------------------------------------
 # tools/audit.py holds one detector per defect class that has actually reached main. The
