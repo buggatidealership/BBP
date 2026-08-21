@@ -1,0 +1,32 @@
+{
+ "wake": "selftest",
+ "started": "2026-08-21T14:20:56Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git status --short",
+   "exit": 0,
+   "tail": "M config/wakes.json\n D data/runs/run_20260821T142028Z_selftest.json\n M tools/boot.py\n M tools/selfcheck.py"
+  },
+  {
+   "n": 2,
+   "cmd": "git commit -m 'Selftest 20260821T142056Z'",
+   "exit": 0,
+   "tail": "NO-OP: index empty, HEAD unchanged at bd0115f0f4a8",
+   "head_before": "bd0115f0f4a828fb4b48dc7f59312cd3e88a3b01",
+   "head_after": "bd0115f0f4a828fb4b48dc7f59312cd3e88a3b01",
+   "staged_before": false,
+   "committed": false,
+   "raw_exit": 1
+  },
+  {
+   "n": 3,
+   "cmd": "git push origin main",
+   "exit": 0,
+   "tail": "Everything up-to-date",
+   "head_after": "bd0115f0f4a828fb4b48dc7f59312cd3e88a3b01"
+  }
+ ],
+ "ended": "2026-08-21T14:20:56Z",
+ "result": "OK"
+}
