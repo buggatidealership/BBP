@@ -137,6 +137,124 @@
           "--check"
         ]
       ]
+    },
+    "g0_watchdog": {
+      "purpose": "Cross-session independence layer. Runs in a session that is NOT the orchestrator and exits non-zero if the G0 gate never recorded its result event. The alarm is the non-zero exit: boot.py halts and writes a HALTED receipt, so the failure lands in the repository rather than in a model's summary.",
+      "steps": [
+        [
+          "git",
+          "checkout",
+          "main"
+        ],
+        [
+          "git",
+          "pull",
+          "--rebase",
+          "--autostash",
+          "origin",
+          "main"
+        ],
+        [
+          "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
+          "tools/selfcheck.py"
+        ],
+        [
+          "python3",
+          "tools/gatewatch.py"
+        ]
+      ]
+    },
+    "decision": {
+      "purpose": "H1.0 venue decision. The runner refuses a duplicate firing, establishes soundness, computes the census (HALTING below the pre-registered stop threshold) and classifies outcomes at 72h. Scoring against the fixed weights, the venue_decision journal event and the survivor threshold published before any forecast exists are the judgment work boot.py prints afterwards.",
+      "steps": [
+        [
+          "git",
+          "checkout",
+          "main"
+        ],
+        [
+          "git",
+          "pull",
+          "--rebase",
+          "--autostash",
+          "origin",
+          "main"
+        ],
+        [
+          "python3",
+          "tools/onceonly.py",
+          "venue_decision"
+        ],
+        [
+          "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
+          "tools/selfcheck.py"
+        ],
+        [
+          "python3",
+          "tools/census.py"
+        ],
+        [
+          "python3",
+          "tools/outcomes.py",
+          "--min-age-hours",
+          "72"
+        ]
+      ]
+    },
+    "g0_gate": {
+      "purpose": "Run the G0 gate and record its verdict as the g0_gate_result event both watchdogs look for. The verdict is selfcheck.py's exit code, so the gate cannot be talked into passing.",
+      "steps": [
+        [
+          "git",
+          "checkout",
+          "main"
+        ],
+        [
+          "git",
+          "pull",
+          "--rebase",
+          "--autostash",
+          "origin",
+          "main"
+        ],
+        [
+          "python3",
+          "tools/audit.py"
+        ],
+        [
+          "python3",
+          "tools/selfcheck.py"
+        ],
+        [
+          "python3",
+          "tools/tier1drill.py"
+        ],
+        [
+          "python3",
+          "tools/g0gate.py"
+        ],
+        [
+          "git",
+          "add",
+          "-A"
+        ],
+        [
+          "__commit__",
+          "G0 gate result"
+        ],
+        [
+          "__push__",
+          "main"
+        ]
+      ]
     }
   }
 }

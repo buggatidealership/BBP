@@ -1,46 +1,62 @@
 {
- "exported": "2026-08-21T12:42Z",
- "note": "Mirror of live scheduler prompts. Every wake now begins by EXECUTING tools/boot.py; the mechanical steps live in config/wakes.json and are run by the runner, never narrated to a model. Re-export whenever a prompt changes.",
- "wakes": {
-  "trig_01LfQpSKB8BAvEpbUgNwGESM": {
-   "name": "BBP weekly ops brief (Mondays)",
-   "cron": "0 7 * * 1",
-   "run_once_at": null,
-   "next_run_at": "2026-08-24T07:08:19.478862625Z",
-   "target": "fresh_session",
-   "prompt": "STEP 1 \u2014 execute, do not interpret:\n\npython3 tools/boot.py --run healthcheck\n\n[remainder updated in scheduler 2026-08-21; re-export at next decision wake for full text]"
-  },
-  "trig_013WCQmMWwVVq5ZKA22Qcods": {
-   "name": "H1.0 survey decision wake (T0+7d)",
-   "cron": null,
-   "run_once_at": "2026-08-24T12:00:00Z",
-   "next_run_at": "2026-08-24T12:00:00Z",
-   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
-   "prompt": "STEP 1 \u2014 execute, do not interpret:\n\npython3 tools/boot.py --run healthcheck\n\n[remainder updated in scheduler 2026-08-21; re-export at next decision wake for full text]"
-  },
-  "trig_01Fe4C8wmE4pkaGPqGhHuLqP": {
-   "name": "G0 dead-man's switch (T0+1mo+1d)",
-   "cron": null,
-   "run_once_at": "2026-09-18T12:00:00Z",
-   "next_run_at": "2026-09-18T12:00:00Z",
-   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
-   "prompt": "STEP 1 \u2014 execute, do not interpret:\n\npython3 tools/boot.py --run healthcheck\n\n[remainder updated in scheduler 2026-08-21; re-export at next decision wake for full text]"
-  },
-  "trig_01JyCEd2DpPpnSH6UsL7MrMn": {
-   "name": "G0 gate check (T0+1mo)",
-   "cron": null,
-   "run_once_at": "2026-09-17T12:00:00Z",
-   "next_run_at": "2026-09-17T12:00:00Z",
-   "target": "session_01NXxV7g3ZWdZB5EsbVpisnY",
-   "prompt": "STEP 1 \u2014 execute, do not interpret:\n\npython3 tools/boot.py --run healthcheck\n\n[remainder updated in scheduler 2026-08-21; re-export at next decision wake for full text]"
-  },
-  "trig_0164trbx3hoEZVrdKH5H94nN": {
-   "name": "H1.0 survey sampler (8h, boot-executed)",
-   "cron": "40 */8 * * *",
-   "run_once_at": null,
-   "next_run_at": "2026-08-21T16:40:00Z",
-   "target": "session_01MAs3kxUM3LnASzsJT8VnDi",
-   "prompt": "Run exactly this one command and nothing else:\n\npython3 tools/boot.py --run sampler\n\nThen report its final two lines verbatim."
+  "as_of": "2026-08-21T17:10:00Z",
+  "note": "Mirror of the LIVE scheduler, exported by hand from list_triggers (prompts are nested at job_config.ccr.events[].data.message.content - an earlier export read the wrong key, reported '0 chars', and concluded prompts were unreadable). The scheduler is authoritative; this file is a snapshot and can only be refreshed by an interactive session with MCP access. Only BBP wakes are listed; the account holds unrelated routines for other projects.",
+  "wakes": {
+    "trig_01NxMeUP5cfh1B6QT2TZyEze": {
+      "name": "H1.0 survey sampler (8h, boot-only session)",
+      "schedule": "cron 9 */8 * * *",
+      "next_run_at": "2026-08-22T00:09:00Z",
+      "last_fired_at": "2026-08-21T16:14:47Z",
+      "session_mode": "persistent",
+      "persistent_session_id": "session_01SgAYNi2g3TzaP6XSxjMcWG",
+      "prompt": "python3 tools/boot.py --run sampler"
+    },
+    "trig_01Abqyb5wHmiZDHTw86Pwb55": {
+      "name": "H1.0 survey decision wake v2 (boot-executed)",
+      "schedule": "once 2026-08-24T12:00:00Z",
+      "next_run_at": "2026-08-24T12:00:00Z",
+      "session_mode": "persistent",
+      "persistent_session_id": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+      "prompt": "Run exactly this one command and nothing else:\n\npython3 tools/boot.py --run decision\n\nYou may read any file to satisfy yourself the command is safe. Do not substitute or add steps.\nReport the runner's final two lines verbatim, then do the judgment work boot.py printed."
+    },
+    "trig_01W1qPW5SJao6XHU4gT3WRDP": {
+      "name": "G0 gate check v2 (boot-executed)",
+      "schedule": "once 2026-09-17T12:00:00Z",
+      "next_run_at": "2026-09-17T12:00:00Z",
+      "session_mode": "persistent",
+      "persistent_session_id": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+      "prompt": "Run exactly this one command and nothing else:\n\npython3 tools/boot.py --run g0_gate\n\nYou may read any file to satisfy yourself the command is safe. Do not substitute or add steps.\nReport the runner's final two lines verbatim."
+    },
+    "trig_011NL1uRZQABYFcksYMBLstZ": {
+      "name": "G0 dead-man's switch v2 (boot-executed)",
+      "schedule": "once 2026-09-18T12:00:00Z",
+      "next_run_at": "2026-09-18T12:00:00Z",
+      "session_mode": "persistent",
+      "persistent_session_id": "session_01NXxV7g3ZWdZB5EsbVpisnY",
+      "prompt": "Run exactly this one command and nothing else:\n\npython3 tools/boot.py --run g0_watchdog\n\nYou may read any file to satisfy yourself the command is safe. Do not substitute or add steps.\nReport the runner's final two lines verbatim."
+    },
+    "trig_01C39LFzBbGWaQTXMQQbksL5": {
+      "name": "G0 cross-session watchdog v2 (bound to live sampler session)",
+      "schedule": "once 2026-09-19T12:00:00Z",
+      "next_run_at": "2026-09-19T12:00:00Z",
+      "session_mode": "persistent",
+      "persistent_session_id": "session_01SgAYNi2g3TzaP6XSxjMcWG",
+      "prompt": "Run exactly this one command and nothing else:\n\npython3 tools/boot.py --run g0_watchdog\n\nYou may read any file to satisfy yourself the command is safe. Do not substitute or add steps.\nThen report the runner's final two lines verbatim."
+    },
+    "trig_01LfQpSKB8BAvEpbUgNwGESM": {
+      "name": "BBP weekly ops brief (Mondays)",
+      "schedule": "cron 0 7 * * 1",
+      "next_run_at": "2026-08-24T07:08:19Z",
+      "last_fired_at": null,
+      "session_mode": "fresh_session_each_fire",
+      "persistent_session_id": null,
+      "model": "claude-sonnet-5",
+      "notifications": {
+        "push": true,
+        "email": true
+      },
+      "exception_note": "The one BBP wake that still carries a prose procedure. It fires into a FRESH session with no prior context, so a standalone instruction is structurally required, and it is READ-ONLY (clones, cannot push), so it cannot alter the ledger. Its STEP 1 is still `python3 tools/boot.py`.",
+      "prompt": "Standalone shift, no prior context. Clone https://github.com/buggatidealership/BBP (read-only; you cannot push and must not try).\n\nSTEP 1 \u2014 execute, do not interpret:\n\npython3 tools/boot.py\n\n[full text in the scheduler; this mirror records the boot invocation and the delivery contract]"
+    }
   }
- }
 }

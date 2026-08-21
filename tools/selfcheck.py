@@ -187,6 +187,17 @@ _r19 = subprocess.run([sys.executable, str(ROOT / "tools" / "audit.py")], cwd=RO
 check("I19 no known defect class present", _r19.returncode == 0,
       (_r19.stdout.strip().splitlines() or ["?"])[0])
 
+# --- I20 tier-1 refusals still hold ---------------------------------------------------
+# Tier-2 (CI blocks the commit) was confirmed by an outside machine on 2026-08-21. Tier-1 is
+# the TOOL refusing the write, and its only prior evidence was a prose instruction in the G0
+# wake telling a model to try five things - which proves nothing, because a model can report
+# "all refused" without attempting anything. tools/tier1drill.py attempts them against a
+# throwaway copy of the repo, so a wrongly-accepted write lands in /tmp, never in the ledger.
+_r20 = subprocess.run([sys.executable, str(ROOT / "tools" / "tier1drill.py")], cwd=ROOT,
+                      capture_output=True, text=True)
+check("I20 tier-1 refusals hold", _r20.returncode == 0,
+      (_r20.stdout + _r20.stderr).strip().splitlines()[-1])
+
 # --- report --------------------------------------------------------------------------
 print(f"BBP SELF-CHECK  {now:%Y-%m-%d %H:%M UTC}")
 for p in PASSES: print(f"  PASS  {p}")
