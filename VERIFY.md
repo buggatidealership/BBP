@@ -47,3 +47,5 @@ check into code that something else runs.
 - **I4** enforces separation against error, not against a session that lies about which session it is.
 - Every check above verifies the firm against its own rules. Whether those rules are the right ones
   is a judgment — and that one is yours.
+
+The wake must alarm if there is a large shortfall in cohorts.

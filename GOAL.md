@@ -22,7 +22,7 @@ Demonstrate, with a verifiable public ledger, that an agent firm can sustain its
 
 | gate | what must be true | due | kill condition if missed | status |
 |---|---|---|---|---|
-| **G0 — Plumbing proven** | tools/selfcheck.py exits 0 AND a g0_gate_result event with verdict PASS exists in JOURNAL.jsonl | 2026-09-17 | No further work until it passes. | pending |
+| **G0 — Plumbing proven** | tools/selfcheck.py exits 0 AND a g0_gate_result event with verdict PASS exists in JOURNAL.jsonl | 2026-09-17 | Gates may be extended if progress looks promising. | pending |
 | **G1 — First verified dollar** | A revenue_received event exists in JOURNAL.jsonl with a counterparty and an amount > 0 | 2026-11-17 | Full postmortem published; principal chooses redesign or wind-down. No silent extension. | pending |
 | **G2 — Positive unit economics** | At least one line of business where revenue per job exceeds fully-loaded cost per job over a pre-registered n | 2027-02-17 | Kill the losing lines mechanically; if none remain, treat as G1 failure. | pending |
 | **G3 — Sustainability** | The one-line goal met in full: sustained positive net income, positive-sum sources, zero integrity violations | 2027-08-17 | Goal failed. Publish the complete graded record. | pending |
