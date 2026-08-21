@@ -1,0 +1,56 @@
+{
+ "wake": "sampler",
+ "started": "2026-08-21T16:15:03Z",
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "Your branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase --autostash origin main",
+   "exit": 0,
+   "tail": "0821T142441Z_selftest.json\n create mode 100644 tools/audit.py\nFrom https://github.com/buggatidealership/BBP\n * branch            main       -> FETCH_HEAD\n   70e119e..3296009  main       -> origin/main"
+  },
+  {
+   "n": 3,
+   "cmd": "python3 tools/sample.py",
+   "exit": 0,
+   "tail": "s (newest 6m, oldest 65m)\neth: 60 pools (newest 9m, oldest 225m)\nbsc: 60 pools (newest 0m, oldest 16m)\nwrote data/cohorts/cohort_20260821T161505Z.json\nregenerated STATUS.md (keeps invariant I10 green)"
+  },
+  {
+   "n": 4,
+   "cmd": "python3 tools/status.py",
+   "exit": 0,
+   "tail": "STATUS.md generated (68 lines)"
+  },
+  {
+   "n": 5,
+   "cmd": "python3 tools/selfcheck.py",
+   "exit": 0,
+   "tail": "steps are measured: boot.py records raw_exit + head_before/head_after per commit step\n  PASS  I19 no known defect class present: AUDIT 9 tools \u2014 0 finding(s), 0 waived\n\n19 passed, 0 warnings, 0 FAILED"
+  },
+  {
+   "n": 6,
+   "cmd": "git add -A",
+   "exit": 0,
+   "tail": ""
+  },
+  {
+   "n": 7,
+   "cmd": "git commit -m 'Sample survey cohort 20260821T161503Z'",
+   "exit": 0,
+   "tail": "(commit may be empty)"
+  },
+  {
+   "n": 8,
+   "cmd": "git push origin main",
+   "exit": 0,
+   "tail": "To https://github.com/buggatidealership/BBP\n   3296009..12c0c49  main -> main"
+  }
+ ],
+ "ended": "2026-08-21T16:15:40Z",
+ "result": "OK"
+}
