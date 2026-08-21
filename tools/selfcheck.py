@@ -33,15 +33,41 @@ j, bad = jsonl(ROOT / "JOURNAL.jsonl")
 check("I1 journal parses", not bad, f"{len(bad)} malformed line(s) {bad}" if bad else f"{len(j)} events")
 
 # --- I2 journal is append-only in git history --------------------------------------
+# Checked in TWO places, and it fails closed. Mutation-tested 2026-08-21: the committed-history
+# check alone passed while five journal lines were deleted from the working tree, and passed
+# again while an existing line was edited in place - nothing at all went red for the edit. It
+# only ever saw commits, so any tampering before a commit was invisible. And its error path was
+# warn(), which does not affect the exit code: a guard that cannot verify the ledger was
+# announcing "unverified" into a channel that reads as green.
+_i2_fail = None
 try:
     out = subprocess.run(["git", "log", "--follow", "--numstat", "--format=%H", "--", "JOURNAL.jsonl"],
                          cwd=ROOT, capture_output=True, text=True).stdout
     deletions = [int(m.group(2)) for m in re.finditer(r"^(\d+)\t(\d+)\tJOURNAL", out, re.M)]
-    check("I2 journal append-only", all(d == 0 for d in deletions),
-          f"{sum(1 for d in deletions if d)} commit(s) deleted journal lines" if any(deletions) else
-          f"{len(deletions)} commits, zero deletions")
+    if any(deletions):
+        _i2_fail = f"{sum(1 for d in deletions if d)} commit(s) deleted journal lines"
+    _hist = f"{len(deletions)} commits, zero deletions"
 except Exception as e:
-    warn("I2 journal append-only", f"could not verify: {e}")
+    _i2_fail = f"could not verify committed history: {e}"
+    _hist = "history unverifiable"
+try:
+    _head = subprocess.run(["git", "show", "HEAD:JOURNAL.jsonl"], cwd=ROOT,
+                           capture_output=True, text=True)
+    if _head.returncode != 0:
+        _i2_fail = _i2_fail or f"could not read HEAD:JOURNAL.jsonl ({_head.stderr.strip()[:80]})"
+        _tree = "working tree unverifiable"
+    else:
+        _hl = [l for l in _head.stdout.splitlines() if l.strip()]
+        _wl = [l for l in (ROOT / "JOURNAL.jsonl").read_text().splitlines() if l.strip()]
+        if _wl[:len(_hl)] != _hl:
+            _n = next((i for i in range(min(len(_hl), len(_wl))) if _hl[i] != _wl[i]), len(_wl))
+            _i2_fail = (f"working tree diverges from HEAD at line {_n + 1}: committed history is "
+                        "not a prefix of the file on disk (a line was edited or deleted)")
+        _tree = f"{len(_wl)} lines on disk, {len(_hl)} committed, HEAD is a prefix"
+except Exception as e:
+    _i2_fail = _i2_fail or f"could not verify working tree: {e}"
+    _tree = "working tree unverifiable"
+check("I2 journal append-only", _i2_fail is None, _i2_fail or f"{_hist}; {_tree}")
 
 # --- I3 every forecast is machine-decidable ----------------------------------------
 f, fbad = jsonl(ROOT / "FORECASTS.jsonl")
