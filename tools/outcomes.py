@@ -21,7 +21,7 @@ wake runs this tool, it does not define these):
 Usage: python3 tools/outcomes.py [--min-age-hours 72] [--max-pools-per-network 0=all]
 Writes data/outcomes/outcome_<ts>.json and prints the per-network summary.
 """
-import argparse, json, time, datetime, pathlib, urllib.request
+import argparse, json, random, time, datetime, pathlib, urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 BATCH = 25          # multi-pool endpoint accepts up to ~30 addresses
@@ -67,6 +67,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--min-age-hours", type=float, default=72.0)
     ap.add_argument("--max-pools-per-network", type=int, default=0)
+    ap.add_argument("--seed", type=int, default=17,
+                    help="seed for the sample when --max-pools-per-network caps it")
     a = ap.parse_args()
     now = datetime.datetime.now(datetime.timezone.utc)
 
@@ -79,7 +81,13 @@ def main():
             for p in plist:
                 addr = p["id"].split("_", 1)[1] if "_" in p["id"] else p["id"]
                 res = to_float(p.get("attributes", {}).get("reserve_in_usd"))
-                if res is None:
+                # NEGATIVE LIQUIDITY IS NOT A MEASUREMENT. 234 of 4240 records (5.5%, all EVM
+                # chains, none on solana) carry a negative reserve_in_usd from the upstream API
+                # - values from -1e-14 float noise up to -7.53. A negative peak inverts the
+                # `current < 0.05 * peak` comparison and makes the verdict meaningless, so a
+                # pool whose reserve is ever negative is excluded from grading rather than
+                # silently graded on nonsense (found 2026-08-21 auditing the cohort data).
+                if res is None or res < 0:
                     continue
                 k = (net, addr)
                 if k not in pools:
@@ -95,8 +103,14 @@ def main():
     for net in sorted({k[0] for k in pools}):
         mature = [(addr, v) for (n, addr), v in pools.items()
                   if n == net and v["first_seen"] <= cutoff]
-        if a.max_pools_per_network:
-            mature = mature[: a.max_pools_per_network]
+        if a.max_pools_per_network and len(mature) > a.max_pools_per_network:
+            # SEEDED RANDOM SAMPLE, never mature[:N]. Head-truncation took the first N in
+            # cohort-chronological order, i.e. every pool from the earliest snapshot and none
+            # from any other - a single launch window, not a sample of the venue. The interim
+            # numbers reported to the principal on 2026-08-21 were computed that way and are
+            # withdrawn (found the same day, auditing the data behind them).
+            mature = random.Random(a.seed).sample(mature, a.max_pools_per_network)
+        mature.sort(key=lambda t: t[0])
         dead = alive = 0
         unmeasurable = []
         for i in range(0, len(mature), BATCH):
