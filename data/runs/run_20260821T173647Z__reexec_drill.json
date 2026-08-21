@@ -1,0 +1,28 @@
+{
+ "wake": "_reexec_drill",
+ "started": "2026-08-21T17:36:47Z",
+ "runner_sha256": "a065665dfada1767",
+ "reexeced": true,
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git status --short",
+   "exit": 0,
+   "tail": "M config/wakes.json\n M tools/boot.py"
+  },
+  {
+   "n": 2,
+   "cmd": "bash -c printf '# drill touch\\n' >> tools/boot.py",
+   "exit": 0,
+   "tail": ""
+  },
+  {
+   "n": 3,
+   "cmd": "git status --short",
+   "exit": 0,
+   "tail": "M config/wakes.json\n M tools/boot.py"
+  }
+ ],
+ "ended": "2026-08-21T17:36:47Z",
+ "result": "OK"
+}
