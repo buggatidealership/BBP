@@ -57,8 +57,18 @@ def run_wake(wake_id):
     receipt["ended"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     receipt["result"] = "OK" if failed is None else f"HALTED at step {failed}"
     rdir = ROOT / "data" / "runs"; rdir.mkdir(parents=True, exist_ok=True)
-    (rdir / f"run_{stamp}_{wake_id}.json").write_text(json.dumps(receipt, indent=1) + "\n")
-    print(f"RECEIPT data/runs/run_{stamp}_{wake_id}.json — {receipt['result']}")
+    rpath = rdir / f"run_{stamp}_{wake_id}.json"
+    rpath.write_text(json.dumps(receipt, indent=1) + "\n")
+    # The receipt is written AFTER the sequence, so the sequence's own commit cannot contain it.
+    # Committing it here, in code, means the evidence lands without any session choosing to do
+    # it (found by the sampler session 2026-08-21: it had to commit the receipt by hand, which
+    # made the record depend on a model's initiative — exactly what receipts exist to avoid).
+    subprocess.run(["git", "add", str(rpath.relative_to(ROOT))], cwd=ROOT, capture_output=True)
+    subprocess.run(["git", "commit", "-q", "-m", f"Receipt: {wake_id} run {stamp} ({receipt['result']})"],
+                   cwd=ROOT, capture_output=True)
+    pr = subprocess.run(["git", "push", "origin", "main"], cwd=ROOT, capture_output=True, text=True)
+    print(f"RECEIPT data/runs/run_{stamp}_{wake_id}.json — {receipt['result']} "
+          f"(receipt commit+push exit={pr.returncode})")
     if failed:
         print("IT FAILED: the sequence halted. Report this verbatim; do not continue past it.")
     return 0 if failed is None else 1
