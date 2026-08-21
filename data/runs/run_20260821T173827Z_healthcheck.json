@@ -1,0 +1,46 @@
+{
+ "wake": "healthcheck",
+ "started": "2026-08-21T17:38:27Z",
+ "runner_sha256": "ab6faecd9b6396b2",
+ "reexeced": false,
+ "steps": [
+  {
+   "n": 1,
+   "cmd": "git checkout main",
+   "exit": 0,
+   "tail": "Your branch is up to date with 'origin/main'.\nAlready on 'main'"
+  },
+  {
+   "n": 2,
+   "cmd": "git pull --rebase --autostash origin main",
+   "exit": 0,
+   "tail": "Already up to date.\nFrom https://github.com/buggatidealership/BBP\n * branch            main       -> FETCH_HEAD"
+  },
+  {
+   "n": 3,
+   "cmd": "python3 tools/audit.py",
+   "exit": 0,
+   "tail": "AUDIT 14 tools \u2014 0 finding(s), 0 waived\nclean: no unwaived findings"
+  },
+  {
+   "n": 4,
+   "cmd": "python3 tools/selfcheck.py",
+   "exit": 0,
+   "tail": "ded\n  PASS  I19 no known defect class present: AUDIT 14 tools \u2014 0 finding(s), 0 waived\n  PASS  I20 tier-1 refusals hold: all attempts refused: tier-1 enforcement holds\n\n20 passed, 0 warnings, 0 FAILED"
+  },
+  {
+   "n": 5,
+   "cmd": "python3 tools/lint.py",
+   "exit": 0,
+   "tail": "LINT PASS: no non-computable terms in operational claims"
+  },
+  {
+   "n": 6,
+   "cmd": "python3 tools/render.py --check",
+   "exit": 0,
+   "tail": "no drift: compiled docs match machine state"
+  }
+ ],
+ "ended": "2026-08-21T17:38:30Z",
+ "result": "OK"
+}
